@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".views.auth.RoleSelectionActivity">
+
+    <!-- Logo -->
+    <ImageView
+        android:id="@+id/img_logo"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="32dp"
+        android:contentDescription="MyOrmawa Logo"
+        android:src="@drawable/ic_logo_circle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- App Name Text -->
+    <TextView
+        android:id="@+id/txt_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:fontFamily="@font/poppins_bold"
+        android:text="MyOrmawa"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:includeFontPadding="false"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="@id/img_logo"
+        app:layout_constraintStart_toEndOf="@id/img_logo"
+        app:layout_constraintTop_toTopOf="@id/img_logo" />
+
+    <!-- Illustration Image -->
+    <ImageView
+        android:id="@+id/img_illustration"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="32dp"
+        android:contentDescription="Selection Role Illustration"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ill_onboarding_welcome"
+        app:layout_constraintBottom_toTopOf="@id/txt_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.35"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/img_logo" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/txt_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/poppins_bold"
+        android:gravity="center"
+        android:text="Pilih Peran Anda"
+        android:textColor="#1A1A1A"
+        android:textSize="28sp"
+        app:layout_constraintBottom_toTopOf="@id/txt_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Description -->
+    <TextView
+        android:id="@+id/txt_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="40dp"
+        android:fontFamily="@font/poppins_regular"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp"
+        android:text="Masuk sebagai Mahasiswa atau Pengurus untuk pengalaman terbaik di MyOrmawa"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@id/btn_login_student"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Button Login sebagai Mahasiswa -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_login_student"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/shape_button_primary"
+        android:fontFamily="@font/poppins_medium"
+        android:text="Login sebagai Mahasiswa"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:backgroundTint="@null"
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_login_admin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Button Login sebagai Pengurus -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_login_admin"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="52dp"
+        android:background="@drawable/shape_button_outline"
+        android:fontFamily="@font/poppins_medium"
+        android:text="Login sebagai Pengurus"
+        android:textAllCaps="false"
+        android:textColor="#2C4EEF"
+        android:textSize="14sp"
+        app:backgroundTint="@null"
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

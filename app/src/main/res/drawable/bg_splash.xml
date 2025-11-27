@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Warna abu-abu soft -->
+    <solid android:color="#DADADA" />
+
+    <!-- Ukuran oval LEBIH gepeng: lebar 160dp, tinggi 80dp -->
+    <size
+        android:width="160dp"
+        android:height="80dp" />
+
+</shape>

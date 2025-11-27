@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Calendar Day Label Style (Su, Mo, Tu, ...) -->
+    <style name="CalendarDayLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textColor">#8C8C8C</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+</resources>
