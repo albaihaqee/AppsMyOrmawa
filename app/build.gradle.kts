@@ -74,6 +74,10 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
+    // Camera & QR Scanner
+    implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")
+    implementation("com.google.zxing:core:3.5.2")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

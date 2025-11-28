@@ -160,9 +160,34 @@ public class OrganizationFragment extends Fragment {
             }
         }
 
-        Collections.sort(filteredOrganizations, Comparator.comparing(Organization::getName));
+        // Sort by category priority, then by name
+        Collections.sort(filteredOrganizations, new Comparator<Organization>() {
+            @Override
+            public int compare(Organization o1, Organization o2) {
+                int priority1 = getCategoryPriority(o1.getCategory());
+                int priority2 = getCategoryPriority(o2.getCategory());
+
+                if (priority1 != priority2) {
+                    return Integer.compare(priority1, priority2);
+                }
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
         adapter.updateOrganizations(filteredOrganizations);
         txtOrganizationCount.setText(filteredOrganizations.size() + " Organisasi");
+    }
+
+    private int getCategoryPriority(String category) {
+        switch (category) {
+            case "Lembaga": return 1;
+            case "Akademik": return 2;
+            case "Rohani": return 3;
+            case "Minat": return 4;
+            case "Olahraga": return 5;
+            case "Seni": return 6;
+            default: return 999;
+        }
     }
 
     private void showLoading(boolean show) {

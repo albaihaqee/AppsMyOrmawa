@@ -9,6 +9,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +25,7 @@ import com.inovarka.myormawa.models.User;
 import com.inovarka.myormawa.network.ApiClient;
 import com.inovarka.myormawa.utils.Constants;
 import com.inovarka.myormawa.views.dashboard.student.DashboardStudentActivity;
+import com.inovarka.myormawa.views.dashboard.member.DashboardMemberActivity;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,13 +35,22 @@ public class LoginActivity extends AppCompatActivity {
 
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText edtEmail, edtPassword;
+    private LinearLayout linearLayoutAuthPrompt;
+    private String userRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setWhiteStatusBar();
         setContentView(R.layout.activity_login);
+
+        userRole = getIntent().getStringExtra("role");
+        if (userRole == null) {
+            userRole = "student";
+        }
+
         initViews();
+        setupUIBasedOnRole();
         loadEmailFromIntent();
     }
 
@@ -54,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         tilPassword = findViewById(R.id.til_password);
         edtEmail = findViewById(R.id.edt_email);
         edtPassword = findViewById(R.id.edt_password);
+        linearLayoutAuthPrompt = findViewById(R.id.linearLayoutAuthPrompt);
 
         edtEmail.addTextChangedListener(createErrorClearer(tilEmail));
         edtPassword.addTextChangedListener(createErrorClearer(tilPassword));
@@ -63,6 +75,14 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(this, RegisterActivity.class)));
         findViewById(R.id.txt_forgotpw).setOnClickListener(v ->
                 startActivity(new Intent(this, ForgotPasswordActivity.class)));
+    }
+
+    private void setupUIBasedOnRole() {
+        if ("member".equals(userRole)) {
+            linearLayoutAuthPrompt.setVisibility(View.GONE);
+        } else {
+            linearLayoutAuthPrompt.setVisibility(View.VISIBLE);
+        }
     }
 
     private void loadEmailFromIntent() {
@@ -94,13 +114,10 @@ public class LoginActivity extends AppCompatActivity {
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
-        // Disable button saat loading
         findViewById(R.id.btn_login).setEnabled(false);
 
-        // Create request
         LoginRequest request = new LoginRequest("login", email, password);
 
-        // Call API
         ApiClient.getApiService().login(request).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
@@ -110,24 +127,41 @@ public class LoginActivity extends AppCompatActivity {
                     LoginResponse loginResponse = response.body();
 
                     if (loginResponse.isSuccess()) {
-                        // Save user data
-                        saveUserData(loginResponse.getData());
+                        User user = loginResponse.getData().getUser();
+                        int userLevel = user.getLevel();
 
-                        Toast.makeText(LoginActivity.this,
-                                "Login successful!", Toast.LENGTH_SHORT).show();
-
-                        // Navigate to dashboard
-                        Intent intent = new Intent(LoginActivity.this, DashboardStudentActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
+                        if ("student".equals(userRole)) {
+                            if (userLevel == 3) {
+                                saveUserData(loginResponse.getData());
+                                Toast.makeText(LoginActivity.this,
+                                        "Berhasil login sebagai Mahasiswa!", Toast.LENGTH_SHORT).show();
+                                navigateToDashboard(DashboardStudentActivity.class);
+                            } else {
+                                Toast.makeText(LoginActivity.this,
+                                        "Gagal, Anda tidak memiliki akses sebagai mahasiswa.",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        } else if ("member".equals(userRole)) {
+                            if (userLevel == 4) {
+                                saveUserData(loginResponse.getData());
+                                Toast.makeText(LoginActivity.this,
+                                        "Berhasil login sebagai Pengurus!", Toast.LENGTH_SHORT).show();
+                                navigateToDashboard(DashboardMemberActivity.class);
+                            } else {
+                                Toast.makeText(LoginActivity.this,
+                                        "Maaf, Anda belum terdaftar sebagai pengurus. Silakan login sebagai mahasiswa.",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
                     } else {
                         Toast.makeText(LoginActivity.this,
-                                loginResponse.getMessage(), Toast.LENGTH_LONG).show();
+                                "Login gagal. Periksa kembali email dan password Anda.",
+                                Toast.LENGTH_LONG).show();
                     }
                 } else {
                     Toast.makeText(LoginActivity.this,
-                            "Login failed. Please try again.", Toast.LENGTH_SHORT).show();
+                            "Login gagal. Periksa kembali email dan password Anda.",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -135,10 +169,17 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 findViewById(R.id.btn_login).setEnabled(true);
                 Toast.makeText(LoginActivity.this,
-                        "Connection error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                        "Koneksi error: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 Log.e("LoginActivity", "Error: " + t.getMessage(), t);
             }
         });
+    }
+
+    private void navigateToDashboard(Class<?> dashboardClass) {
+        Intent intent = new Intent(this, dashboardClass);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void saveUserData(LoginData data) {
@@ -155,6 +196,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString(Constants.KEY_EMAIL, user.getEmail());
         editor.putString(Constants.KEY_PROGRAM_STUDI, user.getProgramStudi());
         editor.putString(Constants.KEY_ANGKATAN, user.getAngkatan());
+        editor.putInt(Constants.KEY_LEVEL, user.getLevel());
 
         editor.apply();
     }

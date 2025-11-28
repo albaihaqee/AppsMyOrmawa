@@ -1,165 +1,311 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/white">
+    android:orientation="vertical"
+    android:background="@drawable/shape_dialog_background">
 
+    <!-- Drag Handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/shape_badge_inactive"
+        android:alpha="0.3" />
+
+    <!-- Title with Close Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Detail Organisasi"
+            android:textColor="#1A1A1A"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/btn_close_dialog"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_close"
+            app:tint="#1A1A1A"
+            android:contentDescription="Close"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+    </LinearLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"
+        android:layout_marginHorizontal="20dp" />
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="500dp"
+        android:paddingHorizontal="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:orientation="vertical"
-            android:layout_marginBottom="20dp">
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
 
-            <FrameLayout
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginBottom="12dp">
+            <!-- Header with Logo -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
+
+                <FrameLayout
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:id="@+id/img_organization_logo_detail"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_graduation_filled"
+                        android:padding="16dp"
+                        android:background="@drawable/shape_organization_logo"
+                        app:tint="#FFFFFF" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/txt_organization_name_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="BEM KM"
+                    android:textColor="#1A1A1A"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_category_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lembaga"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_medium"
+                    app:chipBackgroundColor="#FFFFFF"
+                    android:textColor="#2C4EEF"
+                    app:chipCornerRadius="6dp"
+                    app:chipMinHeight="28dp" />
+            </LinearLayout>
+
+            <!-- Description Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
 
                 <ImageView
-                    android:id="@+id/img_organization_logo_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_graduation_filled"
-                    android:padding="16dp"
-                    android:background="@drawable/shape_organization_logo"
-                    app:tint="#FFFFFF" />
-            </FrameLayout>
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_desk"
+                    app:tint="#2C4EEF"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Deskripsi"
+                    android:textColor="#1A1A1A"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/txt_organization_name_detail"
-                android:layout_width="wrap_content"
+                android:id="@+id/txt_description_detail"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:text="BEM KM"
-                android:textColor="#1A1A1A"
-                android:textSize="18sp"
-                android:layout_marginBottom="8dp" />
+                android:text="Badan Eksekutif Mahasiswa"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:layout_marginBottom="16dp"
+                android:paddingStart="28dp" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_category_detail"
-                android:layout_width="wrap_content"
+            <!-- Vision Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Lembaga"
-                android:textSize="12sp"
-                android:fontFamily="@font/poppins_medium"
-                app:chipBackgroundColor="#E8EEFF"
-                android:textColor="#2C4EEF"
-                app:chipCornerRadius="6dp"
-                app:chipMinHeight="28dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_visi"
+                    app:tint="#2C4EEF"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Visi"
+                    android:textColor="#1A1A1A"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_vision_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Belum ada visi"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:layout_marginBottom="16dp"
+                android:paddingStart="28dp" />
+
+            <!-- Mission Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_misi"
+                    app:tint="#2C4EEF"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Misi"
+                    android:textColor="#1A1A1A"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_mission_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Belum ada misi"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:layout_marginBottom="16dp"
+                android:paddingStart="28dp" />
+
+            <!-- Email Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_email"
+                    app:tint="#2C4EEF"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Email"
+                    android:textColor="#1A1A1A"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_email_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:layout_marginBottom="16dp"
+                android:paddingStart="28dp" />
+
+            <!-- Contact Person Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_phone"
+                    app:tint="#2C4EEF"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Contact Person"
+                    android:textColor="#1A1A1A"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_contact_person_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="#666666"
+                android:textSize="13sp"
+                android:paddingStart="28dp" />
         </LinearLayout>
+    </ScrollView>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="📝 Deskripsi"
-            android:fontFamily="@font/poppins_semibold"
-            android:textColor="#1A1A1A"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+    <!-- Action Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#F8F8F8"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp">
 
-        <TextView
-            android:id="@+id/txt_description_detail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Badan Eksekutif Mahasiswa"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="#666666"
-            android:textSize="13sp"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🎯 Visi"
-            android:fontFamily="@font/poppins_semibold"
-            android:textColor="#1A1A1A"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/txt_vision_detail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Belum ada visi"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="#666666"
-            android:textSize="13sp"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🎪 Misi"
-            android:fontFamily="@font/poppins_semibold"
-            android:textColor="#1A1A1A"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/txt_mission_detail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Belum ada misi"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="#666666"
-            android:textSize="13sp"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="📧 Email"
-            android:fontFamily="@font/poppins_semibold"
-            android:textColor="#1A1A1A"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/txt_email_detail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="#666666"
-            android:textSize="13sp"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="📞 Contact Person"
-            android:fontFamily="@font/poppins_semibold"
-            android:textColor="#1A1A1A"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/txt_contact_person_detail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="#666666"
-            android:textSize="13sp"
-            android:layout_marginBottom="24dp" />
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_close_detail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tutup"
-            android:fontFamily="@font/poppins_semibold"
-            android:textColor="#FFFFFF"
+            android:layout_height="50dp"
             android:background="@drawable/shape_button_primary"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Tutup"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
             android:textAllCaps="false"
-            android:paddingVertical="12dp" />
+            app:backgroundTint="@null" />
     </LinearLayout>
-</ScrollView>
+</LinearLayout>

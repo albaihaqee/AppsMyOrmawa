@@ -29,10 +29,11 @@ public class RoleSelectionActivity extends AppCompatActivity {
 
     private void initViews() {
         MaterialButton btnStudent = findViewById(R.id.btn_login_student);
-        MaterialButton btnAdmin = findViewById(R.id.btn_login_admin);
+        MaterialButton btnMember = findViewById(R.id.btn_login_admin);
 
+        // Kirim role student dan member ke LoginActivity
         btnStudent.setOnClickListener(v -> navigateToLogin("student"));
-        btnAdmin.setOnClickListener(v -> navigateToLogin("admin"));
+        btnMember.setOnClickListener(v -> navigateToLogin("member"));
     }
 
     private void navigateToLogin(String role) {

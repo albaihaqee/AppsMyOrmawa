@@ -1,6 +1,8 @@
 package com.inovarka.myormawa.views.dashboard.student;
 
 import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +60,7 @@ public class OrganizationDetailDialogFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ImageView btnClose = view.findViewById(R.id.btn_close_dialog);
         ImageView imgLogo = view.findViewById(R.id.img_organization_logo_detail);
         TextView txtName = view.findViewById(R.id.txt_organization_name_detail);
         Chip chipCategory = view.findViewById(R.id.chip_category_detail);
@@ -66,11 +69,10 @@ public class OrganizationDetailDialogFragment extends DialogFragment {
         TextView txtMission = view.findViewById(R.id.txt_mission_detail);
         TextView txtEmail = view.findViewById(R.id.txt_email_detail);
         TextView txtContactPerson = view.findViewById(R.id.txt_contact_person_detail);
-        Button btnClose = view.findViewById(R.id.btn_close_detail);
+        Button btnCloseBottom = view.findViewById(R.id.btn_close_detail);
 
         if (organization != null) {
             txtName.setText(organization.getName());
-            chipCategory.setText(organization.getCategory());
             txtDescription.setText(organization.getDescription());
             txtVision.setText(organization.getVision() != null && !organization.getVision().isEmpty()
                     ? organization.getVision() : "Belum ada visi");
@@ -81,14 +83,64 @@ public class OrganizationDetailDialogFragment extends DialogFragment {
             txtContactPerson.setText(organization.getContactPerson() != null && !organization.getContactPerson().isEmpty()
                     ? organization.getContactPerson() : "-");
 
+            // Set category chip with dynamic styling
+            setCategoryStyle(chipCategory, organization.getCategory());
+
+            // Load logo
             if (organization.getLogoUrl() != null && !organization.getLogoUrl().isEmpty()) {
-                Glide.with(requireContext()).load(organization.getLogoUrl())
+                Glide.with(requireContext())
+                        .load(organization.getLogoUrl())
                         .placeholder(R.drawable.ic_graduation_filled)
-                        .error(R.drawable.ic_graduation_filled).into(imgLogo);
+                        .error(R.drawable.ic_graduation_filled)
+                        .into(imgLogo);
+            } else {
+                imgLogo.setImageResource(R.drawable.ic_graduation_filled);
             }
         }
 
+        // Close buttons
         btnClose.setOnClickListener(v -> dismiss());
+        btnCloseBottom.setOnClickListener(v -> dismiss());
+    }
+
+    private void setCategoryStyle(Chip chip, String category) {
+        String bgColor = "#E8EEFF", textColor = "#2C4EEF";
+
+        switch (category) {
+            case "Lembaga":
+                bgColor = "#E5E5E5";
+                textColor = "#455A64";
+                break;
+            case "Akademik":
+                bgColor = "#E8EEFF";
+                textColor = "#2C4EEF";
+                break;
+            case "Rohani":
+                bgColor = "#A9FEAF";
+                textColor = "#388E3C";
+                break;
+            case "Minat":
+                bgColor = "#FFECCE";
+                textColor = "#E65100";
+                break;
+            case "Seni":
+                bgColor = "#FBDFFF";
+                textColor = "#7B1FA2";
+                break;
+            case "Olahraga":
+                bgColor = "#FAD1D7";
+                textColor = "#C62828";
+                break;
+        }
+
+        chip.setText(category);
+        chip.setChipBackgroundColorResource(android.R.color.transparent);
+        chip.setTextColor(Color.parseColor(textColor));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(6 * getResources().getDisplayMetrics().density);
+        bg.setColor(Color.parseColor(bgColor));
+        chip.setBackground(bg);
     }
 
     @Override
@@ -96,6 +148,7 @@ public class OrganizationDetailDialogFragment extends DialogFragment {
         super.onStart();
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
     }
 }

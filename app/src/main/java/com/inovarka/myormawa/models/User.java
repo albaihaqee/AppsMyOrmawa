@@ -21,10 +21,14 @@ public class User {
     @SerializedName("angkatan")
     private String angkatan;
 
+    @SerializedName("level")
+    private int level;
+
     public int getId() { return id; }
     public String getNim() { return nim; }
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
     public String getProgramStudi() { return programStudi; }
     public String getAngkatan() { return angkatan; }
+    public int getLevel() { return level; }
 }

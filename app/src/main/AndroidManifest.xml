@@ -2,9 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions -->
+    <!-- Internet Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Camera Permissions & Features -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Storage Permissions -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -27,24 +36,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Dashboard Student -->
-        <activity
-            android:name=".views.dashboard.student.DashboardStudentActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustPan" />
-
-        <!-- Change Email Flow -->
-        <activity
-            android:name=".views.dashboard.student.ChangeEmailSuccessActivity"
-            android:exported="true" />
-        <activity
-            android:name=".views.dashboard.student.ChangeEmailVerificationActivity"
-            android:exported="true" />
-        <activity
-            android:name=".views.dashboard.student.ChangeEmailActivity"
-            android:exported="false"
-            tools:ignore="LockedOrientationActivity" />
 
         <!-- Onboarding -->
         <activity
@@ -83,7 +74,14 @@
             android:name=".views.auth.ResetPasswordSuccessActivity"
             android:exported="false" />
 
-        <!-- Profile & Settings -->
+        <!-- Dashboard Student -->
+        <activity
+            android:name=".views.dashboard.student.DashboardStudentActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".views.dashboard.student.NotificationActivity"
+            android:exported="false" />
         <activity
             android:name=".views.dashboard.student.DataPribadiActivity"
             android:exported="false"
@@ -97,10 +95,15 @@
             android:exported="false"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity" />
-
-        <!-- Features -->
         <activity
-            android:name=".views.dashboard.student.NotificationActivity"
+            android:name=".views.dashboard.student.ChangeEmailActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".views.dashboard.student.ChangeEmailVerificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.ChangeEmailSuccessActivity"
             android:exported="false" />
         <activity
             android:name=".views.dashboard.student.OprecActivity"
@@ -115,11 +118,23 @@
             android:name=".views.dashboard.student.ScholarshipActivity"
             android:exported="false" />
 
+        <!-- Dashboard Member -->
+        <activity
+            android:name=".views.dashboard.member.DashboardMemberActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".views.dashboard.member.DataPribadiMemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.ScanActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
+
         <!-- Font Metadata -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
 
 </manifest>
