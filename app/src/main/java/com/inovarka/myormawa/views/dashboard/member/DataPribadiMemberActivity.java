@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -34,7 +35,7 @@ public class DataPribadiMemberActivity extends AppCompatActivity {
     private static final int PERMISSION_CODE = 100;
 
     private ImageView btnBack;
-    private android.widget.TextView txtAvatar;
+    private TextView txtAvatar;
     private TextInputEditText edtNamaLengkap, edtNim, edtEmail, edtProgramStudi, edtAngkatan, edtDepartemen, edtJabatan;
     private TextInputLayout tilEmail;
     private View btnChangePhoto;
@@ -52,6 +53,13 @@ public class DataPribadiMemberActivity extends AppCompatActivity {
         setupLaunchers();
         loadUserData();
         setupListeners();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload data setiap kali activity resume (untuk update email setelah berhasil diubah)
+        loadUserData();
     }
 
     private void setupStatusBar() {
@@ -205,10 +213,9 @@ public class DataPribadiMemberActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         btnContinue.setOnClickListener(v -> {
             dialog.dismiss();
-            // TODO: Navigate to ChangeEmailActivity for Member
-            // Intent intent = new Intent(this, ChangeEmailMemberActivity.class);
-            // startActivity(intent);
-            Toast.makeText(this, "Fitur ganti email sedang dalam pengembangan", Toast.LENGTH_SHORT).show();
+            // Navigate to ChangeEmailMemberActivity
+            Intent intent = new Intent(this, ChangeEmailMemberActivity.class);
+            startActivity(intent);
         });
 
         dialog.show();
