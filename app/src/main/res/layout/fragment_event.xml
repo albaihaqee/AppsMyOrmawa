@@ -1,17 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F8F8"
-    tools:context=".views.dashboard.member.EventFragment">
+    android:orientation="vertical"
+    android:background="#2C4EEF">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Header Section - FIXED (BLUE) -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="INI EVENT"
-        android:textColor="#1A1A1A"
-        android:textSize="20sp" />
-</FrameLayout>
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/poppins_semibold"
+            android:gravity="center"
+            android:text="Event"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+
+
+    </LinearLayout>
+
+    <!-- Scrollable Content (WHITE BACKGROUND WITH CURVED TOP) -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/shape_calendar_background"
+            android:paddingTop="20dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
+
+            <!-- Filter Tabs -->
+
+
+            <!-- Event Count -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="#2C4EEF"
+                    android:layout_marginEnd="6dp"/>
+
+                <TextView
+                    android:id="@+id/tv_event_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Menampilkan 12 Event"
+                    android:textColor="#4A4A4A"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/poppins_medium"/>
+            </LinearLayout>
+
+            <!-- Events RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_events"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/layout_empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingVertical="48dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="#BDBDBD"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Belum Ada Event"
+                    android:textColor="#757575"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Event akan muncul di sini"
+                    android:textColor="#9E9E9E"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <!-- Loading State -->
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="32dp"
+                android:visibility="gone"
+                android:indeterminateTint="#2C4EEF"/>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

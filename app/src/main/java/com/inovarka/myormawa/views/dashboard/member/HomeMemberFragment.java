@@ -22,10 +22,15 @@ import com.inovarka.myormawa.utils.Constants;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeMemberFragment extends Fragment {
 
     private TextView txtUserName;
     private LinearLayout containerAnnouncements;
+    private List<AnnouncementMeeting> announcementList;
+
 
     @Nullable
     @Override
@@ -100,27 +105,144 @@ public class HomeMemberFragment extends Fragment {
 
         // Anggota Button
         view.findViewById(R.id.btn_anggota).setOnClickListener(v -> {
-            // TODO: Open anggota/member list activity
+            Intent intent = new Intent(getActivity(), MemberActivity.class);
+            startActivity(intent);
         });
 
         // Absensi Button
         view.findViewById(R.id.btn_absensi).setOnClickListener(v -> {
-            // TODO: Open absensi activity
+            Intent intent = new Intent(getActivity(), PresenceHistoryActivity.class);
+            startActivity(intent);
         });
 
         // Kegiatan Button
         view.findViewById(R.id.btn_kegiatan).setOnClickListener(v -> {
-            // TODO: Open kegiatan activity
+            Intent intent = new Intent(getActivity(), MeetingActivity.class);
+            startActivity(intent);
         });
 
         // Dokumen Button
         view.findViewById(R.id.btn_dokumen).setOnClickListener(v -> {
-            // TODO: Open dokumen activity
+            Intent intent = new Intent(getActivity(), DocumentActivity.class);
+            startActivity(intent);
         });
 
         // See All Announcements Button
         view.findViewById(R.id.txt_see_all_announcements).setOnClickListener(v -> {
-            // TODO: Open all announcements activity
+            Intent intent = new Intent(getActivity(), MeetingActivity.class);
+            startActivity(intent);
         });
+        loadAnnouncements();
+    }
+
+    private void loadAnnouncements() {
+        announcementList = new ArrayList<>();
+
+        // Data dummy - ambil dari API atau database
+        // Ini adalah kegiatan yang akan datang (upcoming meetings)
+        announcementList.add(new AnnouncementMeeting(
+                "1",
+                "PENTING: Rapat Bulanan",
+                "Rapat Koordinasi Tim",
+                "Hari Ini, 20.00",
+                "Gedung JTI Lantai 1",
+                "Agenda: Evaluasi kegiatan & planning event",
+                true // isImportant
+        ));
+
+        announcementList.add(new AnnouncementMeeting(
+                "2",
+                "INFO: Workshop",
+                "Workshop Android Development",
+                "Besok, 13.00",
+                "Lab Komputer A",
+                "Agenda: Pelatihan pembuatan aplikasi mobile",
+                false
+        ));
+
+        announcementList.add(new AnnouncementMeeting(
+                "3",
+                "REMINDER: Seminar",
+                "Seminar Teknologi AI",
+                "27 Nov, 10.00",
+                "Auditorium Utama",
+                "Agenda: Pengenalan AI dalam software development",
+                false
+        ));
+
+        // Display announcements
+        displayAnnouncements();
+    }
+
+    private void displayAnnouncements() {
+        if (containerAnnouncements == null) return;
+
+        containerAnnouncements.removeAllViews();
+
+        // Maksimal tampilkan 3 pengumuman teratas
+        int maxDisplay = Math.min(announcementList.size(), 3);
+
+        for (int i = 0; i < maxDisplay; i++) {
+            AnnouncementMeeting announcement = announcementList.get(i);
+            View itemView = LayoutInflater.from(getContext())
+                    .inflate(R.layout.item_announcement_meeting, containerAnnouncements, false);
+
+            TextView tvStatus = itemView.findViewById(R.id.tv_announcement_status);
+            TextView tvTitle = itemView.findViewById(R.id.tv_announcement_title);
+            TextView tvDate = itemView.findViewById(R.id.tv_announcement_date);
+            TextView tvLocation = itemView.findViewById(R.id.tv_announcement_location);
+            TextView tvAgenda = itemView.findViewById(R.id.tv_announcement_agenda);
+
+            tvStatus.setText(announcement.getStatus());
+            tvTitle.setText(announcement.getTitle());
+            tvDate.setText(announcement.getDateTime());
+            tvLocation.setText(announcement.getLocation());
+            tvAgenda.setText("Agenda: " + announcement.getAgenda());
+
+            // Set color based on importance
+            if (announcement.isImportant()) {
+                tvStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            } else {
+                tvStatus.setTextColor(getResources().getColor(R.color.blue_500));
+            }
+
+            // Click listener to open meeting detail or MeetingActivity
+            itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), MeetingActivity.class);
+                startActivity(intent);
+            });
+
+            containerAnnouncements.addView(itemView);
+        }
+    }
+
+    // Inner class untuk model announcement
+    private static class AnnouncementMeeting {
+        private String id;
+        private String status;
+        private String title;
+        private String dateTime;
+        private String location;
+        private String agenda;
+        private boolean isImportant;
+
+        public AnnouncementMeeting(String id, String status, String title, String dateTime,
+                                   String location, String agenda, boolean isImportant) {
+            this.id = id;
+            this.status = status;
+            this.title = title;
+            this.dateTime = dateTime;
+            this.location = location;
+            this.agenda = agenda;
+            this.isImportant = isImportant;
+        }
+
+        public String getId() { return id; }
+        public String getStatus() { return status; }
+        public String getTitle() { return title; }
+        public String getDateTime() { return dateTime; }
+        public String getLocation() { return location; }
+        public String getAgenda() { return agenda; }
+        public boolean isImportant() { return isImportant; }
     }
 }
