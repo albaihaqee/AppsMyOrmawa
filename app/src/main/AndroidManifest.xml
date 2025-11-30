@@ -26,6 +26,9 @@
         android:theme="@style/Theme.Myormawa"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".views.dashboard.member.NotificationMemberActivity"
+            android:exported="false" />
+        <activity
             android:name=".views.dashboard.member.PresenceHistoryActivity"
             android:exported="false" />
         <activity

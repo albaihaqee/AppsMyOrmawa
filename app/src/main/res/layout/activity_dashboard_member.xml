@@ -108,8 +108,9 @@
                 android:layout_weight="1" />
 
             <!-- Taskboard Tab -->
+            <!-- Reminder Tab (dulu Taskboard) -->
             <LinearLayout
-                android:id="@+id/nav_taskboard"
+                android:id="@+id/nav_reminder"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
@@ -119,22 +120,25 @@
                 android:paddingBottom="4dp">
 
                 <ImageView
-                    android:id="@+id/icon_taskboard"
+                    android:id="@+id/icon_reminder"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_calendar"
+                    android:src="@drawable/ic_bell_ring"
                     app:tint="#8C8C8C" />
 
+
                 <TextView
-                    android:id="@+id/label_taskboard"
+                    android:id="@+id/label_reminder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:fontFamily="@font/poppins_regular"
-                    android:text="Taskboard"
+                    android:text="Reminder"
                     android:textColor="#8C8C8C"
                     android:textSize="12sp" />
+
             </LinearLayout>
+
 
             <!-- Profile Tab -->
             <LinearLayout

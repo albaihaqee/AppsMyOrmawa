@@ -17,9 +17,9 @@ import com.inovarka.myormawa.R;
 
 public class DashboardMemberActivity extends AppCompatActivity {
 
-    private LinearLayout navHome, navEvent, navTaskboard, navProfile;
-    private ImageView iconHome, iconEvent, iconTaskboard, iconProfile;
-    private TextView labelHome, labelEvent, labelTaskboard, labelProfile;
+    private LinearLayout navHome, navEvent, navReminder, navProfile;
+    private ImageView iconHome, iconEvent, iconReminder, iconProfile;
+    private TextView labelHome, labelEvent, labelReminder, labelProfile;
     private FrameLayout navScan;
 
     @Override
@@ -46,18 +46,18 @@ public class DashboardMemberActivity extends AppCompatActivity {
     private void initViews() {
         navHome = findViewById(R.id.nav_home);
         navEvent = findViewById(R.id.nav_event);
-        navTaskboard = findViewById(R.id.nav_taskboard);
+        navReminder = findViewById(R.id.nav_reminder);
         navProfile = findViewById(R.id.nav_profile);
         navScan = findViewById(R.id.nav_scan);
 
         iconHome = findViewById(R.id.icon_home);
         iconEvent = findViewById(R.id.icon_event);
-        iconTaskboard = findViewById(R.id.icon_taskboard);
+        iconReminder = findViewById(R.id.icon_reminder);
         iconProfile = findViewById(R.id.icon_profile);
 
         labelHome = findViewById(R.id.label_home);
         labelEvent = findViewById(R.id.label_event);
-        labelTaskboard = findViewById(R.id.label_taskboard);
+        labelReminder = findViewById(R.id.label_reminder);
         labelProfile = findViewById(R.id.label_profile);
     }
 
@@ -77,8 +77,8 @@ public class DashboardMemberActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        navTaskboard.setOnClickListener(v -> {
-            loadFragment(new TaskboardFragment());
+        navReminder.setOnClickListener(v -> {
+            loadFragment(new ReminderFragment());   // masuk ke fragment reminder
             setActiveTab(3);
         });
 
@@ -102,7 +102,7 @@ public class DashboardMemberActivity extends AppCompatActivity {
         // Reset all tabs
         updateTab(iconHome, labelHome, R.drawable.ic_home, inactiveColor, R.font.poppins_regular);
         updateTab(iconEvent, labelEvent, R.drawable.ic_calendar, inactiveColor, R.font.poppins_regular);
-        updateTab(iconTaskboard, labelTaskboard, R.drawable.ic_calendar, inactiveColor, R.font.poppins_regular);
+        updateTab(iconReminder, labelReminder, R.drawable.ic_bell_ring, inactiveColor, R.font.poppins_regular);
         updateTab(iconProfile, labelProfile, R.drawable.ic_profile, inactiveColor, R.font.poppins_regular);
 
         // Set active tab
@@ -117,7 +117,7 @@ public class DashboardMemberActivity extends AppCompatActivity {
                 // Scan button tetap tidak berubah
                 break;
             case 3:
-                updateTab(iconTaskboard, labelTaskboard, R.drawable.ic_calendar_filled, primaryColor, R.font.poppins_semibold);
+                updateTab(iconReminder, labelReminder, R.drawable.ic_bell_ring_filled, primaryColor, R.font.poppins_semibold);
                 break;
             case 4:
                 updateTab(iconProfile, labelProfile, R.drawable.ic_profile_filled, primaryColor, R.font.poppins_semibold);

@@ -96,12 +96,6 @@ public class HomeMemberFragment extends Fragment {
     }
 
     private void setupClickListeners(View view) {
-        // Notification Button
-        view.findViewById(R.id.btn_notification).setOnClickListener(v -> {
-            // TODO: Open notification activity
-            // Intent intent = new Intent(getActivity(), NotificationActivity.class);
-            // startActivity(intent);
-        });
 
         // Anggota Button
         view.findViewById(R.id.btn_anggota).setOnClickListener(v -> {
@@ -124,6 +118,11 @@ public class HomeMemberFragment extends Fragment {
         // Dokumen Button
         view.findViewById(R.id.btn_dokumen).setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), DocumentActivity.class);
+            startActivity(intent);
+        });
+
+        view.findViewById(R.id.btn_notification).setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), NotificationMemberActivity.class);
             startActivity(intent);
         });
 
