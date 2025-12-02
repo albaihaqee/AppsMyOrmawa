@@ -13,12 +13,14 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
@@ -27,16 +29,11 @@ import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.adapters.BannerAdapter;
 import com.inovarka.myormawa.models.Banner;
 import com.inovarka.myormawa.models.Event;
+import com.inovarka.myormawa.repositories.EventRepository;
 import com.inovarka.myormawa.utils.Constants;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -55,7 +52,6 @@ public class HomeFragment extends Fragment {
 
     private BannerAdapter bannerAdapter;
     private List<Banner> bannerList;
-    private List<Event> eventList;
     private Handler sliderHandler;
     private int currentPage = 0;
 
@@ -125,7 +121,6 @@ public class HomeFragment extends Fragment {
 
         switch (position) {
             case 0: // Banner 1 → Organization Fragment
-                // Navigate to Organization tab in bottom navigation
                 if (getActivity() instanceof DashboardStudentActivity) {
                     ((DashboardStudentActivity) getActivity()).navigateToOrganization();
                 }
@@ -144,24 +139,41 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupEvents() {
-        initEventList();
+        loadRecentEvents();
+    }
 
-        List<Event> recentEvents = getRecentEvents(eventList, MAX_RECENT_EVENTS);
+    private void loadRecentEvents() {
+        EventRepository eventRepository = new EventRepository();
 
-        eventsContainer.removeAllViews();
-        LayoutInflater inflater = LayoutInflater.from(getContext());
+        eventRepository.getRecentEvents(MAX_RECENT_EVENTS).observe(getViewLifecycleOwner(), new Observer<List<Event>>() {
+            @Override
+            public void onChanged(List<Event> events) {
+                eventsContainer.removeAllViews();
 
-        for (Event event : recentEvents) {
-            View itemView = inflater.inflate(R.layout.item_event, eventsContainer, false);
+                if (events != null && !events.isEmpty()) {
+                    LayoutInflater inflater = LayoutInflater.from(getContext());
 
-            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) itemView.getLayoutParams();
-            params.leftMargin = 0;
-            params.rightMargin = 0;
-            itemView.setLayoutParams(params);
+                    for (Event event : events) {
+                        View itemView = inflater.inflate(R.layout.item_event, eventsContainer, false);
 
-            bindEventView(itemView, event);
-            eventsContainer.addView(itemView);
-        }
+                        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) itemView.getLayoutParams();
+                        params.leftMargin = 0;
+                        params.rightMargin = 0;
+                        itemView.setLayoutParams(params);
+
+                        bindEventView(itemView, event);
+                        eventsContainer.addView(itemView);
+                    }
+                } else {
+                    TextView emptyText = new TextView(getContext());
+                    emptyText.setText("Tidak ada event terbaru");
+                    emptyText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    emptyText.setTextColor(0xFF999999);
+                    emptyText.setPadding(16, 32, 16, 32);
+                    eventsContainer.addView(emptyText);
+                }
+            }
+        });
     }
 
     private void bindEventView(View itemView, Event event) {
@@ -175,9 +187,12 @@ public class HomeFragment extends Fragment {
         txtTitle.setText(event.getTitle());
         txtDate.setText(event.getDate());
         txtLocation.setText(event.getLocation());
-        txtParticipants.setText(event.getParticipantsText());
         txtCategory.setText(event.getCategory());
 
+        // Hide participants
+        txtParticipants.setVisibility(View.GONE);
+
+        // Load poster from URL
         if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
             Glide.with(this)
                     .load(event.getPosterUrl())
@@ -189,7 +204,7 @@ public class HomeFragment extends Fragment {
             imgPoster.setImageResource(R.drawable.ic_home);
         }
 
-        // Click event item → Show detail dialog
+        // Click listener
         itemView.setOnClickListener(v -> showEventDetailDialog(event));
     }
 
@@ -202,66 +217,41 @@ public class HomeFragment extends Fragment {
         TextView txtOrganizer = view.findViewById(R.id.txt_event_detail_organizer);
         TextView txtLocation = view.findViewById(R.id.txt_event_detail_location);
         TextView txtDate = view.findViewById(R.id.txt_event_detail_date);
-        TextView txtTime = view.findViewById(R.id.txt_event_detail_time);
-        TextView txtParticipants = view.findViewById(R.id.txt_event_detail_participants);
         TextView txtDescription = view.findViewById(R.id.txt_event_detail_description);
         View btnDownload = view.findViewById(R.id.btn_download_guidebook);
+
+        LinearLayout layoutTimeSection = view.findViewById(R.id.layout_time_section);
+        TextView txtTime = view.findViewById(R.id.txt_event_detail_time);
 
         txtTitle.setText(event.getTitle());
         txtOrganizer.setText(event.getOrganizer());
         txtLocation.setText(event.getLocation());
         txtDate.setText(event.getDate());
-        txtTime.setText(event.getTime() != null && !event.getTime().isEmpty() ? event.getTime() : "-");
-        txtParticipants.setText(event.getParticipantsText());
         txtDescription.setText(event.getDescription());
 
+        if (event.hasTimeInfo()) {
+            layoutTimeSection.setVisibility(View.VISIBLE);
+            txtTime.setText(event.getWaktuLengkap());
+        } else {
+            layoutTimeSection.setVisibility(View.GONE);
+        }
+
+        // Handle download button
+        if (event.hasGuideBook()) {
+            btnDownload.setVisibility(View.VISIBLE);
+            btnDownload.setOnClickListener(v -> {
+                // Download functionality will be handled in EventActivity
+                Toast.makeText(requireContext(), "Fitur download tersedia di halaman Event", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            });
+        } else {
+            btnDownload.setVisibility(View.GONE);
+        }
+
         btnClose.setOnClickListener(v -> dialog.dismiss());
-        btnDownload.setOnClickListener(v -> {
-            // TODO: Download guidebook
-            dialog.dismiss();
-        });
 
         dialog.setContentView(view);
         dialog.show();
-    }
-
-    private List<Event> getRecentEvents(List<Event> events, int maxCount) {
-        // Filter upcoming events only (date >= today)
-        List<Event> upcomingEvents = new ArrayList<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", new Locale("id", "ID"));
-        Date today = new Date();
-
-        for (Event event : events) {
-            try {
-                Date eventDate = sdf.parse(event.getDate());
-                if (eventDate != null && !eventDate.before(today)) {
-                    upcomingEvents.add(event);
-                }
-            } catch (ParseException e) {
-                // If parse fails, include the event anyway
-                upcomingEvents.add(event);
-            }
-        }
-
-        // Sort by date DESC (newest first)
-        Collections.sort(upcomingEvents, new Comparator<Event>() {
-            @Override
-            public int compare(Event e1, Event e2) {
-                try {
-                    Date date1 = sdf.parse(e1.getDate());
-                    Date date2 = sdf.parse(e2.getDate());
-                    if (date1 != null && date2 != null) {
-                        return date2.compareTo(date1); // DESC order
-                    }
-                } catch (ParseException e) {
-                    // Ignore
-                }
-                return 0;
-            }
-        });
-
-        // Return max N events
-        return upcomingEvents.subList(0, Math.min(maxCount, upcomingEvents.size()));
     }
 
     private void initBannerList() {
@@ -269,81 +259,6 @@ public class HomeFragment extends Fragment {
         bannerList.add(new Banner(R.drawable.ill_banner_slide_1));
         bannerList.add(new Banner(R.drawable.ill_banner_slide_2));
         bannerList.add(new Banner(R.drawable.ill_banner_slide_3));
-    }
-
-    private void initEventList() {
-        eventList = new ArrayList<>();
-
-        // Dummy data - menggunakan Event model (bukan PopularEvent)
-        eventList.add(new Event(
-                "1",
-                "Diesnatalis Politeknik Negeri Jember",
-                "Politeknik Negeri Jember",
-                "15 Des 2025",
-                "07:00 - 16:00",
-                450,
-                "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=533&fit=crop",
-                "Aula Soetomo Wadojo",
-                "Perayaan Dies Natalis Politeknik Negeri Jember yang ke-48 dengan berbagai rangkaian acara menarik.",
-                "",
-                "Perayaan"
-        ));
-
-        eventList.add(new Event(
-                "2",
-                "Workshop UI/UX Design for Beginner",
-                "Lab Multimedia Gedung JTI",
-                "20 Nov 2025",
-                "13:00 - 15:00",
-                120,
-                "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=533&fit=crop",
-                "Lab Multimedia Gedung JTI",
-                "Workshop UI/UX Design untuk pemula yang ingin belajar desain antarmuka dan pengalaman pengguna.",
-                "",
-                "Workshop"
-        ));
-
-        eventList.add(new Event(
-                "3",
-                "Seminar Nasional Teknologi Informasi",
-                "Politeknik Negeri Jember",
-                "25 Nov 2025",
-                "08:00 - 12:00",
-                200,
-                "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=533&fit=crop",
-                "Auditorium Gedung Utama",
-                "Seminar nasional membahas perkembangan teknologi informasi terkini.",
-                "",
-                "Seminar"
-        ));
-
-        eventList.add(new Event(
-                "4",
-                "Kompetisi UI/UX Design",
-                "HMJ Teknologi Informasi",
-                "1 Des 2025",
-                "",
-                150,
-                "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=533&fit=crop",
-                "Online",
-                "Kompetisi desain UI/UX untuk mahasiswa se-Indonesia.",
-                "",
-                "Kompetisi"
-        ));
-
-        eventList.add(new Event(
-                "5",
-                "Pelatihan Web Development",
-                "UKM Programming",
-                "5 Des 2025",
-                "09:00 - 16:00",
-                80,
-                "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=533&fit=crop",
-                "Lab Komputer JTI",
-                "Pelatihan intensif web development dari basic hingga advanced.",
-                "",
-                "Workshop"
-        ));
     }
 
     private void setupPageTransformer() {
@@ -446,7 +361,7 @@ public class HomeFragment extends Fragment {
             startActivity(intent);
         });
 
-        // See All Events Button → Navigate to EventActivity
+        // See All Events Button
         txtSeeAllEvents.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), EventActivity.class);
             startActivity(intent);

@@ -1,6 +1,7 @@
 package com.inovarka.myormawa.views.dashboard.student;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,15 +24,17 @@ import com.inovarka.myormawa.adapters.CalendarDateAdapter;
 import com.inovarka.myormawa.adapters.CalendarEventAdapter;
 import com.inovarka.myormawa.models.CalendarDate;
 import com.inovarka.myormawa.models.CalendarEvent;
+import com.inovarka.myormawa.repositories.CalendarRepository;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public class CalendarFragment extends Fragment {
+
+    private static final String TAG = "CalendarFragment";
 
     private TextView txtMonthYear;
     private TextView txtSelectedDate;
@@ -39,13 +43,16 @@ public class CalendarFragment extends Fragment {
     private RecyclerView rvCalendarDates;
     private RecyclerView rvEvents;
     private LinearLayout layoutEmptyEvent;
+    private LinearLayout loadingView;
 
     private Calendar currentCalendar;
     private Calendar selectedDate;
     private Map<String, List<CalendarEvent>> eventsMap;
+    private List<CalendarEvent> allEvents;
 
     private CalendarDateAdapter dateAdapter;
     private CalendarEventAdapter eventAdapter;
+    private CalendarRepository calendarRepository;
 
     private SimpleDateFormat monthYearFormat;
     private SimpleDateFormat selectedDateFormat;
@@ -62,7 +69,8 @@ public class CalendarFragment extends Fragment {
         currentCalendar = Calendar.getInstance();
         selectedDate = (Calendar) currentCalendar.clone();
 
-        initializeDummyEvents();
+        calendarRepository = new CalendarRepository();
+        allEvents = new ArrayList<>();
     }
 
     @Nullable
@@ -79,7 +87,9 @@ public class CalendarFragment extends Fragment {
         initViews(view);
         setupRecyclerViews();
         setupListeners();
-        updateUI();
+
+        // Load data dari API
+        loadCalendarEvents();
     }
 
     private void setupStatusBar() {
@@ -101,12 +111,15 @@ public class CalendarFragment extends Fragment {
         rvCalendarDates = view.findViewById(R.id.rv_calendar_dates);
         rvEvents = view.findViewById(R.id.rv_events);
         layoutEmptyEvent = view.findViewById(R.id.layout_empty_event);
+        loadingView = view.findViewById(R.id.loading_view);
     }
 
     private void setupRecyclerViews() {
         dateAdapter = new CalendarDateAdapter(new ArrayList<>(), date -> {
             selectedDate = (Calendar) date.clone();
-            updateUI();
+            updateSelectedDateText();
+            updateEventsForSelectedDate();
+            dateAdapter.setSelectedDate(selectedDate);
         });
         rvCalendarDates.setLayoutManager(new GridLayoutManager(getContext(), 7));
         rvCalendarDates.setAdapter(dateAdapter);
@@ -125,6 +138,38 @@ public class CalendarFragment extends Fragment {
         btnNextMonth.setOnClickListener(v -> {
             currentCalendar.add(Calendar.MONTH, 1);
             updateUI();
+        });
+    }
+
+    /**
+     * === PERUBAHAN UTAMA: LOAD DATA DARI API ===
+     */
+    private void loadCalendarEvents() {
+        showLoading();
+
+        calendarRepository.getCalendarEvents().observe(getViewLifecycleOwner(), new Observer<List<CalendarEvent>>() {
+            @Override
+            public void onChanged(List<CalendarEvent> events) {
+                hideLoading();
+
+                if (events != null && !events.isEmpty()) {
+                    Log.d(TAG, "Calendar events loaded: " + events.size());
+                    allEvents = events;
+
+                    // Convert list ke Map (dateKey -> List<Event>)
+                    eventsMap = calendarRepository.getEventsByDate(events);
+
+                    Log.d(TAG, "Events map created with " + eventsMap.size() + " dates");
+
+                    // Update UI
+                    updateUI();
+                } else {
+                    Log.d(TAG, "No calendar events found");
+                    allEvents = new ArrayList<>();
+                    eventsMap = null;
+                    updateUI();
+                }
+            }
         });
     }
 
@@ -153,9 +198,11 @@ public class CalendarFragment extends Fragment {
                 calendarDate.setToday(true);
             }
 
+            // === CEK APAKAH TANGGAL INI PUNYA EVENT ===
             String dateKey = dateKeyFormat.format(calendar.getTime());
-            if (eventsMap.containsKey(dateKey)) {
+            if (eventsMap != null && eventsMap.containsKey(dateKey)) {
                 calendarDate.setHasEvent(true);
+                Log.d(TAG, "Date " + dateKey + " has events: " + eventsMap.get(dateKey).size());
             }
 
             dates.add(calendarDate);
@@ -179,13 +226,21 @@ public class CalendarFragment extends Fragment {
 
     private void updateEventsForSelectedDate() {
         String dateKey = dateKeyFormat.format(selectedDate.getTime());
-        List<CalendarEvent> events = eventsMap.get(dateKey);
+
+        Log.d(TAG, "Selected date key: " + dateKey);
+
+        List<CalendarEvent> events = null;
+        if (eventsMap != null) {
+            events = eventsMap.get(dateKey);
+        }
 
         if (events != null && !events.isEmpty()) {
+            Log.d(TAG, "Showing " + events.size() + " events for " + dateKey);
             layoutEmptyEvent.setVisibility(View.GONE);
             rvEvents.setVisibility(View.VISIBLE);
             eventAdapter.updateEvents(events);
         } else {
+            Log.d(TAG, "No events for " + dateKey);
             layoutEmptyEvent.setVisibility(View.VISIBLE);
             rvEvents.setVisibility(View.GONE);
         }
@@ -196,82 +251,15 @@ public class CalendarFragment extends Fragment {
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
-    private void initializeDummyEvents() {
-        eventsMap = new HashMap<>();
-
-        String[] colors = {"#5800FF", "#2C4EEF", "#00D7FF"};
-
-        addEvent("2025-11-09", new CalendarEvent(
-                "1",
-                "Diesnatalis Teknik Informatika",
-                "Aula Soetomo Wadojo",
-                "07:00 am",
-                createDate(2025, Calendar.NOVEMBER, 9),
-                colors[0]
-        ));
-        addEvent("2025-11-09", new CalendarEvent(
-                "2",
-                "Workshop UI/UX Design",
-                "Lab Multimedia",
-                "13:00 pm",
-                createDate(2025, Calendar.NOVEMBER, 9),
-                colors[1]
-        ));
-
-        addEvent("2025-11-22", new CalendarEvent(
-                "3",
-                "Diesnatalis Teknik Informatika",
-                "Aula Soetomo Wadojo",
-                "07:00 am",
-                createDate(2025, Calendar.NOVEMBER, 22),
-                colors[0]
-        ));
-        addEvent("2025-11-22", new CalendarEvent(
-                "4",
-                "Workshop Laravel untuk Pemula",
-                "Lab. Rekayasa Sistem Informasi",
-                "13:00 pm",
-                createDate(2025, Calendar.NOVEMBER, 22),
-                colors[1]
-        ));
-        addEvent("2025-11-22", new CalendarEvent(
-                "5",
-                "Pelatihan Public Speaking",
-                "Lantai 4.1 Gedung JTI",
-                "14:00 pm",
-                createDate(2025, Calendar.NOVEMBER, 22),
-                colors[2]
-        ));
-        addEvent("2025-11-22", new CalendarEvent(
-                "6",
-                "Konser Art of Marunggalan 11.0",
-                "Lapangan Hijau A3 POLIJE",
-                "16:00 pm",
-                createDate(2025, Calendar.NOVEMBER, 22),
-                colors[0]
-        ));
-
-        addEvent("2025-11-24", new CalendarEvent(
-                "7",
-                "Seminar Nasional Teknologi",
-                "Gedung Serba Guna",
-                "09:00 am",
-                createDate(2025, Calendar.NOVEMBER, 24),
-                colors[0]
-        ));
+    private void showLoading() {
+        if (loadingView != null) loadingView.setVisibility(View.VISIBLE);
+        if (rvCalendarDates != null) rvCalendarDates.setVisibility(View.GONE);
+        if (layoutEmptyEvent != null) layoutEmptyEvent.setVisibility(View.GONE);
+        if (rvEvents != null) rvEvents.setVisibility(View.GONE);
     }
 
-    private void addEvent(String dateKey, CalendarEvent event) {
-        if (!eventsMap.containsKey(dateKey)) {
-            eventsMap.put(dateKey, new ArrayList<>());
-        }
-        eventsMap.get(dateKey).add(event);
-    }
-
-    private java.util.Date createDate(int year, int month, int day) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, day, 0, 0, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
+    private void hideLoading() {
+        if (loadingView != null) loadingView.setVisibility(View.GONE);
+        if (rvCalendarDates != null) rvCalendarDates.setVisibility(View.VISIBLE);
     }
 }
