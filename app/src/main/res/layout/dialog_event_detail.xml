@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="@font/poppins_semibold"
-            android:text="Detail &amp; Pendaftaran"
+            android:text="Detail Event"
             android:textColor="#1A1A1A"
             android:textSize="16sp" />
 
@@ -123,7 +123,7 @@
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:src="@drawable/ic_profile"
+                    android:src="@drawable/ic_location"
                     app:tint="#2C4EEF"
                     android:layout_marginEnd="8dp" />
 
@@ -184,18 +184,20 @@
                     android:gravity="end" />
             </LinearLayout>
 
-            <!-- Time -->
+            <!-- === TAMBAHAN BARU: WAKTU === -->
             <LinearLayout
+                android:id="@+id/layout_time_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="16dp"
+                android:visibility="visible">
 
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:src="@drawable/ic_profile"
+                    android:src="@drawable/ic_time"
                     app:tint="#2C4EEF"
                     android:layout_marginEnd="8dp" />
 
@@ -214,47 +216,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/poppins_semibold"
-                    android:text="07:00 - 16:00"
+                    android:text="07:00 - 17:00 WIB"
                     android:textColor="#1A1A1A"
                     android:textSize="12sp"
                     android:gravity="end" />
             </LinearLayout>
-
-            <!-- Participants -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="#2C4EEF"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Peserta"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/txt_event_detail_participants"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="450 peserta"
-                    android:textColor="#1A1A1A"
-                    android:textSize="12sp"
-                    android:gravity="end" />
-            </LinearLayout>
+            <!-- ============================= -->
 
             <!-- Divider -->
             <View

@@ -3,8 +3,10 @@ package com.inovarka.myormawa.network;
 import com.inovarka.myormawa.models.ApiResponse;
 import com.inovarka.myormawa.models.ApiResponseList;
 import com.inovarka.myormawa.models.ApiResponseSingle;
+import com.inovarka.myormawa.models.CalendarEvent;
 import com.inovarka.myormawa.models.ChangeEmailRequest;
 import com.inovarka.myormawa.models.ChangePasswordRequest;
+import com.inovarka.myormawa.models.Event;
 import com.inovarka.myormawa.models.ForgotPasswordRequest;
 import com.inovarka.myormawa.models.LoginRequest;
 import com.inovarka.myormawa.models.LoginResponse;
@@ -53,4 +55,15 @@ public interface ApiService {
 
     @GET("ormawa.php")
     Call<ApiResponseSingle<Organization>> getOrganizationById(@Query("id") String id);
+
+    // EVENT ENDPOINTS
+    @GET("event.php")
+    Call<ApiResponseList<Event>> getAllEvents();
+
+    @GET("event.php")
+    Call<ApiResponseSingle<Event>> getEventById(@Query("id") String id);
+
+    // CALENDAR ENDPOINTS
+    @GET("calendar.php")
+    Call<ApiResponseList<CalendarEvent>> getCalendarEvents();
 }

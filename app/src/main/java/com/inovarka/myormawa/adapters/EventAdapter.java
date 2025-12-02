@@ -1,5 +1,6 @@
 package com.inovarka.myormawa.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.models.Event;
 
@@ -18,6 +20,7 @@ import java.util.List;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> {
 
+    private static final String TAG = "EventAdapter";
     private List<Event> eventList;
     private OnItemClickListener listener;
 
@@ -80,19 +83,35 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             txtTitle.setText(event.getTitle());
             txtLocation.setText(event.getLocation());
             txtDate.setText(event.getDate());
-            txtParticipants.setText(event.getParticipantsText());
 
-            if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+            // Hide participants
+            txtParticipants.setVisibility(View.GONE);
+
+            // Load poster dengan Glide - PERBAIKAN
+            String posterUrl = event.getPosterUrl();
+
+            Log.d(TAG, "Loading poster for: " + event.getTitle());
+            Log.d(TAG, "Poster URL: " + posterUrl);
+
+            if (posterUrl != null && !posterUrl.isEmpty()) {
+                Log.d(TAG, "Attempting to load poster from: " + posterUrl);
+
                 Glide.with(itemView.getContext())
-                        .load(event.getPosterUrl())
-                        .centerCrop()
+                        .load(posterUrl)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE) // Disable cache untuk testing
+                        .skipMemoryCache(true) // Skip memory cache
                         .placeholder(R.drawable.ic_home)
                         .error(R.drawable.ic_home)
+                        .centerCrop()
                         .into(imgPoster);
+
+                Log.d(TAG, "Glide loading initiated for: " + posterUrl);
             } else {
+                Log.w(TAG, "Poster URL is null or empty for: " + event.getTitle());
                 imgPoster.setImageResource(R.drawable.ic_home);
             }
 
+            // Click listener
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onItemClick(event);
