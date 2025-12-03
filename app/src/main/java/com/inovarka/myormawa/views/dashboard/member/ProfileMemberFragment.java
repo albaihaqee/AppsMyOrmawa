@@ -49,6 +49,13 @@ public class ProfileMemberFragment extends Fragment {
         setupListeners();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Reload data setiap kali fragment resume (untuk update email setelah berhasil diubah)
+        loadUserData();
+    }
+
     private void setupStatusBar() {
         if (getActivity() != null && getActivity().getWindow() != null) {
             Window window = getActivity().getWindow();
@@ -102,9 +109,9 @@ public class ProfileMemberFragment extends Fragment {
         });
 
         cardGantiPassword.setOnClickListener(v -> {
-            // TODO: Navigate to Change Password Activity
-            // Intent intent = new Intent(getActivity(), ChangePasswordActivity.class);
-            // startActivity(intent);
+            // Navigate to Change Password Activity
+            Intent intent = new Intent(getActivity(), ChangePasswordOldMemberActivity.class);
+            startActivity(intent);
         });
 
         cardLogout.setOnClickListener(v -> showLogoutDialog());

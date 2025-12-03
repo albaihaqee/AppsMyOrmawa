@@ -4,6 +4,9 @@
     <!-- Internet Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- Camera Permissions & Features -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Camera Permissions & Features -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -13,6 +16,13 @@
 
     <uses-permission android:name="android.permission.CAMERA" /> <!-- Storage Permissions -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Storage Permissions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
@@ -37,6 +47,8 @@
         <activity
             android:name=".views.dashboard.member.MeetingActivity"
             android:exported="false" /> <!-- Splash Screen (Launcher) -->
+
+        <!-- Splash & Onboarding -->
         <activity
             android:name=".views.splash.SplashActivity"
             android:exported="true"
@@ -47,6 +59,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity> <!-- Onboarding -->
+        </activity>
+
         <activity
             android:name=".views.onboarding.OnboardingActivity"
             android:exported="false" /> <!-- Authentication -->
@@ -91,15 +105,8 @@
             android:name=".views.dashboard.student.DataPribadiActivity"
             android:exported="false"
             tools:ignore="LockedOrientationActivity" />
-        <activity
-            android:name=".views.dashboard.student.ChangePasswordOldActivity"
-            android:exported="false"
-            tools:ignore="LockedOrientationActivity" />
-        <activity
-            android:name=".views.dashboard.student.ChangePasswordNewActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustPan"
-            tools:ignore="LockedOrientationActivity" />
+
+        <!-- Student - Change Email -->
         <activity
             android:name=".views.dashboard.student.ChangeEmailActivity"
             android:exported="false"
@@ -110,6 +117,19 @@
         <activity
             android:name=".views.dashboard.student.ChangeEmailSuccessActivity"
             android:exported="false" />
+
+        <!-- Student - Change Password -->
+        <activity
+            android:name=".views.dashboard.student.ChangePasswordOldActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".views.dashboard.student.ChangePasswordNewActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"
+            tools:ignore="LockedOrientationActivity" />
+
+        <!-- Student - Features -->
         <activity
             android:name=".views.dashboard.student.OprecActivity"
             android:exported="false" />
@@ -133,6 +153,32 @@
             android:name=".views.dashboard.member.ScanActivity"
             android:exported="false"
             tools:ignore="LockedOrientationActivity" /> <!-- Font Metadata -->
+            tools:ignore="LockedOrientationActivity" />
+
+        <!-- Member - Change Email -->
+        <activity
+            android:name=".views.dashboard.member.ChangeEmailMemberActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".views.dashboard.member.ChangeEmailVerificationMemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.ChangeEmailSuccessMemberActivity"
+            android:exported="false" />
+
+        <!-- Member - Change Password -->
+        <activity
+            android:name=".views.dashboard.member.ChangePasswordOldMemberActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".views.dashboard.member.ChangePasswordNewMemberActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"
+            tools:ignore="LockedOrientationActivity" />
+
+        <!-- Font Metadata -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
