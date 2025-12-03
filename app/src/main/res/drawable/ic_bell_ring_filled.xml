@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="800dp"
+    android:height="800dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Bagian lonceng terisi -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M10.29,21c0.46,0.6 1.18,1 1.71,1s1.25,-0.4 1.71,-1h-3.42zM18,16v-5c0,-3.07 -1.64,-5.64 -4.5,-6.32V4c0,-0.83 -0.67,-1.5 -1.5,-1.5S10.5,3.17 10.5,4v0.68C7.64,5.36 6,7.92 6,11v5l-1.29,1.29C4.26,17.74 4.63,18.5 5.29,18.5h13.42c0.66,0 1.03,-0.76 0.58,-1.21L18,16z"/>
+</vector>
