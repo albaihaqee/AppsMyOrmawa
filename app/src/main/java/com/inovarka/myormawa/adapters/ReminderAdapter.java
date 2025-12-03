@@ -41,11 +41,11 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
     public void onBindViewHolder(@NonNull ReminderAdapter.ViewHolder holder, int position) {
         ReminderItem item = list.get(position);
 
-        holder.tvMeetingName.setText(item.getMeeting().getName());
+        holder.tvMeetingName.setText(item.getMeeting().getNama());
         holder.tvAgenda.setText(item.getMeeting().getAgenda());
-        holder.tvDate.setText(item.getMeeting().getDate());
-        holder.tvTime.setText(item.getMeeting().getTimeRange());
-        holder.tvLocation.setText(item.getMeeting().getLocation());
+        holder.tvDate.setText(item.getMeeting().getTanggal());
+        holder.tvTime.setText(item.getMeeting().getWaktu());
+        holder.tvLocation.setText(item.getMeeting().getLokasi());
 
         holder.tvAgenda.append(" · Reminder " + item.getMinutesBefore() + "m sebelum");
 

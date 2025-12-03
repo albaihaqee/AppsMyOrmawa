@@ -8,21 +8,25 @@
     android:background="@drawable/bg_dialog"
     android:padding="0dp">
 
-    <!-- Poster Header -->
-    <androidx.cardview.widget.CardView
+    <!-- Poster + Close Button -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/img_dialog_poster"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:background="#E0E0E0"/>
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardUseCompatPadding="true">
 
-        <!-- Close Button -->
+            <ImageView
+                android:id="@+id/img_dialog_poster"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"/>
+        </androidx.cardview.widget.CardView>
+
         <ImageView
             android:id="@+id/btn_close_dialog"
             android:layout_width="32dp"
@@ -33,202 +37,128 @@
             app:tint="#FFFFFF"
             android:layout_gravity="end|top"
             android:layout_margin="12dp"/>
-    </androidx.cardview.widget.CardView>
+    </FrameLayout>
 
-    <!-- Content -->
-    <LinearLayout
+    <!-- Content Scrollable -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:fillViewport="true">
 
-        <!-- Category Badge -->
-        <TextView
-            android:id="@+id/tv_dialog_category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Workshop"
-            android:textColor="#FFFFFF"
-            android:textSize="10sp"
-            android:fontFamily="@font/poppins_semibold"
-            android:background="@drawable/shape_event_category_badge"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:layout_marginBottom="8dp"/>
-
-        <!-- Title -->
-        <TextView
-            android:id="@+id/tv_dialog_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Workshop UI/UX Design for Beginner"
-            android:textColor="#1A1A1A"
-            android:textSize="18sp"
-            android:fontFamily="@font/poppins_bold"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Details Container -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_detail_info"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp">
+            android:padding="20dp">
 
-            <!-- Date & Time -->
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tv_dialog_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Judul Event"
+                android:textColor="#1A1A1A"
+                android:textSize="18sp"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginBottom="16dp"
+                android:maxLines="2"
+                android:ellipsize="end"/>
+
+            <!-- Info Box -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
+                android:orientation="vertical"
+                android:background="@drawable/bg_detail_info"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_calendar"
-                    app:tint="#2C4EEF"
-                    android:layout_marginEnd="12dp"
-                    android:layout_marginTop="2dp"/>
-
+                <!-- Date -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tanggal, Waktu"
-                        android:textColor="#757575"
-                        android:textSize="11sp"
-                        android:fontFamily="@font/poppins_regular"
-                        android:layout_marginBottom="2dp"/>
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="#2C4EEF"
+                        android:layout_marginEnd="12dp"/>
 
                     <TextView
                         android:id="@+id/tv_dialog_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="20 November 2025"
-                        android:textColor="#1A1A1A"
                         android:textSize="13sp"
-                        android:fontFamily="@font/poppins_semibold"/>
+                        android:textColor="#1A1A1A"/>
+                </LinearLayout>
+
+                <!-- Time -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_clock"
+                        app:tint="#2C4EEF"
+                        android:layout_marginEnd="12dp"/>
 
                     <TextView
                         android:id="@+id/tv_dialog_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="09:00 - 17:00 WIB"
-                        android:textColor="#4A4A4A"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/poppins_medium"/>
+                        android:textSize="13sp"
+                        android:textColor="#1A1A1A"/>
                 </LinearLayout>
-            </LinearLayout>
 
-            <!-- Location -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_location"
-                    app:tint="#FF5252"
-                    android:layout_marginEnd="12dp"
-                    android:layout_marginTop="2dp"/>
-
+                <!-- Location -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lokasi"
-                        android:textColor="#757575"
-                        android:textSize="11sp"
-                        android:fontFamily="@font/poppins_regular"
-                        android:layout_marginBottom="2dp"/>
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_location"
+                        app:tint="#FF5252"
+                        android:layout_marginEnd="12dp"/>
 
                     <TextView
                         android:id="@+id/tv_dialog_location"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lab Multimedia Gedung JTI"
-                        android:textColor="#1A1A1A"
+                        android:text="Gedung JTI Lt.2"
                         android:textSize="13sp"
-                        android:fontFamily="@font/poppins_semibold"/>
+                        android:textColor="#1A1A1A"/>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Participants -->
-            <LinearLayout
+            <!-- Description -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deskripsi"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_semibold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_dialog_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="#4CAF50"
-                    android:layout_marginEnd="12dp"
-                    android:layout_marginTop="2dp"/>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Peserta"
-                        android:textColor="#757575"
-                        android:textSize="11sp"
-                        android:fontFamily="@font/poppins_regular"
-                        android:layout_marginBottom="2dp"/>
-
-                    <TextView
-                        android:id="@+id/tv_dialog_participants"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="120 peserta terdaftar"
-                        android:textColor="#1A1A1A"
-                        android:textSize="13sp"
-                        android:fontFamily="@font/poppins_semibold"/>
-                </LinearLayout>
-            </LinearLayout>
+                android:textColor="#4A4A4A"
+                android:textSize="13sp"
+                android:lineSpacingExtra="3dp"/>
         </LinearLayout>
+    </ScrollView>
 
-        <!-- Description -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Deskripsi"
-            android:textColor="#1A1A1A"
-            android:textSize="14sp"
-            android:fontFamily="@font/poppins_semibold"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:id="@+id/tv_dialog_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Workshop ini dirancang khusus untuk pemula yang ingin belajar UI/UX Design dari nol. Peserta akan mendapatkan materi lengkap dan hands-on practice."
-            android:textColor="#4A4A4A"
-            android:textSize="13sp"
-            android:fontFamily="@font/poppins_regular"
-            android:lineSpacingExtra="3dp"
-            android:layout_marginBottom="20dp"/>
-
-        <!-- Action Buttons -->
-    </LinearLayout>
 </LinearLayout>

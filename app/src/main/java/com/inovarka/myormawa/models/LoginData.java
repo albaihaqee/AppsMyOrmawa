@@ -8,6 +8,8 @@ public class LoginData {
 
     @SerializedName("user")
     private User user;
+    private String idOrmawa;
+
 
     public String getToken() { return token; }
     public User getUser() { return user; }

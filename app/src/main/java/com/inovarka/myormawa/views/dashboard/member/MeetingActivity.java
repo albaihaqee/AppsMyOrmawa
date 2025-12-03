@@ -1,120 +1,170 @@
 package com.inovarka.myormawa.views.dashboard.member;
 
-import android.content.DialogInterface;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.adapters.MeetingAdapter;
+import com.inovarka.myormawa.models.ApiResponseList;
 import com.inovarka.myormawa.models.Meeting;
 import com.inovarka.myormawa.models.ReminderItem;
+import com.inovarka.myormawa.models.ReminderReceiver;
+import com.inovarka.myormawa.network.ApiClient;
+import com.inovarka.myormawa.network.ApiService;
+import com.inovarka.myormawa.utils.SessionManager;
 import com.inovarka.myormawa.utils.ReminderStorage;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MeetingActivity extends AppCompatActivity {
 
-    private RecyclerView rvMeetings;
-    private MeetingAdapter meetingAdapter;
-    private TextView chipAll;
-    private List<Meeting> fullMeetingList = new ArrayList<>();
-    private List<Meeting> displayMeetingList = new ArrayList<>();
+    private RecyclerView rvKegiatan;
+    private MeetingAdapter adapter;
+    private List<Meeting> fullList = new ArrayList<>();
+    private List<Meeting> displayList = new ArrayList<>();
+    private SessionManager sessionManager;
+
+    private ProgressBar progressBar;
+    private LinearLayout layoutEmptyState;
+    private TextView txtEmptyMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meeting);
 
+        sessionManager = new SessionManager(this);
+
+        rvKegiatan = findViewById(R.id.rv_meetings);
         ImageView btnBack = findViewById(R.id.btn_back);
         TextView tvTitle = findViewById(R.id.tv_title);
-        rvMeetings = findViewById(R.id.rv_meetings);
-        chipAll = findViewById(R.id.chip_all);
+        progressBar = findViewById(R.id.progress_bar);
+        layoutEmptyState = findViewById(R.id.layout_empty_state);
+        txtEmptyMessage = findViewById(R.id.txt_empty_message);
 
-        btnBack.setOnClickListener(v -> finish());
         tvTitle.setText("Riwayat Kegiatan");
+        btnBack.setOnClickListener(v -> finish());
 
-        setupRecyclerView();
-        loadMeetingData();
-        setupChipListeners();
+        adapter = new MeetingAdapter(this, displayList);
+        rvKegiatan.setLayoutManager(new LinearLayoutManager(this));
+        rvKegiatan.setAdapter(adapter);
+
+        adapter.setOnReminderClick((kegiatan, bell) -> showReminderOptions(kegiatan));
+
+        loadKegiatan();
     }
 
-    private void setupRecyclerView() {
-        meetingAdapter = new MeetingAdapter(this, displayMeetingList);
-        rvMeetings.setLayoutManager(new LinearLayoutManager(this));
-        rvMeetings.setAdapter(meetingAdapter);
-
-        meetingAdapter.setOnReminderClick((meeting, bellView) -> {
-            // tampilkan dialog pilihan 10/30/60 / batal / hapus
-            showReminderOptions(meeting);
-        });
-    }
-
-    private void showReminderOptions(Meeting meeting) {
-        String[] options = new String[] { "10 menit sebelum", "30 menit sebelum", "1 jam sebelum", "Hapus Reminder", "Batal" };
+    private void showReminderOptions(Meeting kegiatan) {
+        String[] options = {"10 menit sebelum", "30 menit sebelum", "1 jam sebelum", "Hapus Reminder", "Batal"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Set Reminder");
         builder.setItems(options, (dialog, which) -> {
-            if (which == 0) { // 10 min
-                ReminderStorage.addReminder(this, new ReminderItem(meeting, 10));
-                Toast.makeText(this, "Reminder 10 menit sebelum disimpan", Toast.LENGTH_SHORT).show();
-            } else if (which == 1) { // 30 min
-                ReminderStorage.addReminder(this, new ReminderItem(meeting, 30));
-                Toast.makeText(this, "Reminder 30 menit sebelum disimpan", Toast.LENGTH_SHORT).show();
-            } else if (which == 2) { // 60 min
-                ReminderStorage.addReminder(this, new ReminderItem(meeting, 60));
-                Toast.makeText(this, "Reminder 1 jam sebelum disimpan", Toast.LENGTH_SHORT).show();
-            } else if (which == 3) { // hapus
-                ReminderStorage.removeReminder(this, meeting.getId());
-                Toast.makeText(this, "Reminder dihapus", Toast.LENGTH_SHORT).show();
-            } else {
-                // cancel
+            ReminderItem item = null;
+
+            if (which == 0) item = new ReminderItem(kegiatan, 10);
+            else if (which == 1) item = new ReminderItem(kegiatan, 30);
+            else if (which == 2) item = new ReminderItem(kegiatan, 60);
+
+            if (item != null) {
+                ReminderStorage.addReminder(this, item); // simpan ke SharedPreferences
+                ReminderStorage.scheduleReminder(this, item); // schedule AlarmManager
             }
-            // refresh adapter untuk update icon bell
-            meetingAdapter.notifyDataSetChanged();
+
+            if (which == 3) {
+                ReminderStorage.removeReminder(this, kegiatan.getId());
+            }
+
+            adapter.notifyDataSetChanged();
         });
         builder.show();
     }
 
-    // (rest of your code: loadMeetingData, filter functions)
-    private void setupChipListeners() {
-        chipAll.setOnClickListener(v -> {
-            meetingAdapter.updateList(fullMeetingList);
+    public static void scheduleReminder(Context context, ReminderItem item) {
+        long meetingTime = item.getMeeting().getTimeInMillis(); // convert tanggal+waktu ke millis
+        long reminderTime = meetingTime - item.getMinutesBefore() * 60 * 1000;
+
+        Intent intent = new Intent(context, ReminderReceiver.class);
+        intent.putExtra("meeting_name", item.getMeeting().getNama());
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                item.getMeeting().getId().hashCode(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderTime, pendingIntent);
+        }
+    }
+
+    private void loadKegiatan() {
+        showLoading(true);
+        ApiService api = ApiClient.getApiService();
+        String ormawaId = sessionManager.getIdOrmawa();
+
+        api.getKegiatanByOrmawa(ormawaId).enqueue(new Callback<ApiResponseList<Meeting>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<Meeting>> call, Response<ApiResponseList<Meeting>> response) {
+                showLoading(false);
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    fullList.clear();
+                    fullList.addAll(response.body().getData());
+                    displayList.clear();
+                    displayList.addAll(fullList);
+                    adapter.notifyDataSetChanged();
+
+                    toggleEmptyState(displayList.isEmpty());
+                } else {
+                    toggleEmptyState(true);
+                    txtEmptyMessage.setText("Belum ada riwayat kegiatan");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<Meeting>> call, Throwable t) {
+                showLoading(false);
+                toggleEmptyState(true);
+                txtEmptyMessage.setText("Gagal memuat kegiatan: " + t.getMessage());
+            }
         });
     }
 
-    private void loadMeetingData() {
-        fullMeetingList.clear();
+    private void toggleEmptyState(boolean isEmpty) {
+        if (isEmpty) {
+            layoutEmptyState.setVisibility(View.VISIBLE);
+            rvKegiatan.setVisibility(View.GONE);
+        } else {
+            layoutEmptyState.setVisibility(View.GONE);
+            rvKegiatan.setVisibility(View.VISIBLE);
+        }
+    }
 
-        // Dummy data
-        fullMeetingList.add(new Meeting("1", "Rapat Koordinasi Tim",
-                "Evaluasi proyek Q4 dan perencanaan strategi 2025",
-                "25 Nov 2024", "09:00", "11:00", "Ruang Meeting Lantai 3"));
-
-        fullMeetingList.add(new Meeting("2", "Workshop Android Development",
-                "Pelatihan pembuatan aplikasi mobile dengan Android Studio",
-                "26 Nov 2024", "13:00", "16:00", "Lab Komputer A"));
-
-        fullMeetingList.add(new Meeting("3", "Seminar Teknologi AI",
-                "Pengenalan dan implementasi AI dalam pengembangan software",
-                "27 Nov 2024", "10:00", "12:00", "Auditorium Utama"));
-
-        fullMeetingList.add(new Meeting("4", "Briefing Project Baru",
-                "Diskusi requirement dan timeline project client",
-                "28 Nov 2024", "14:00", "15:30", "Ruang Meeting Lantai 2"));
-
-        displayMeetingList.clear();
-        displayMeetingList.addAll(fullMeetingList);
-
-        meetingAdapter.notifyDataSetChanged();
+    private void showLoading(boolean isLoading) {
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        if (isLoading) {
+            rvKegiatan.setVisibility(View.GONE);
+            layoutEmptyState.setVisibility(View.GONE);
+        }
     }
 }
