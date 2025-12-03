@@ -75,6 +75,10 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
+    // AndroidX Lifecycle (untuk ViewModel & LiveData)
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-livedata:2.6.2")
+
     // Camera & QR Scanner
     implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")
     implementation("com.google.zxing:core:3.5.2")

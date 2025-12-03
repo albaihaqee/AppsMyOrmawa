@@ -10,6 +10,10 @@ import com.inovarka.myormawa.models.ChangePasswordRequest;
 import com.inovarka.myormawa.models.Document;
 import com.inovarka.myormawa.models.Event;
 import com.inovarka.myormawa.models.EventMember;
+import com.inovarka.myormawa.models.CalendarEvent;
+import com.inovarka.myormawa.models.ChangeEmailRequest;
+import com.inovarka.myormawa.models.ChangePasswordRequest;
+import com.inovarka.myormawa.models.Event;
 import com.inovarka.myormawa.models.ForgotPasswordRequest;
 import com.inovarka.myormawa.models.LoginRequest;
 import com.inovarka.myormawa.models.LoginResponse;
@@ -77,6 +81,7 @@ public interface ApiService {
             @Query("user_id") String userId
     );
 
+    // EVENT ENDPOINTS
     @GET("event.php")
     Call<ApiResponseList<Event>> getAllEvents();
 
@@ -102,4 +107,9 @@ public interface ApiService {
     @GET("documents.php")
     Call<ApiResponseList<Document>> getDocumentsByOrmawa(@Query("id_ormawa") String idOrmawa);
 
+    Call<ApiResponseSingle<Event>> getEventById(@Query("id") String id);
+
+    // CALENDAR ENDPOINTS
+    @GET("calendar.php")
+    Call<ApiResponseList<CalendarEvent>> getCalendarEvents();
 }

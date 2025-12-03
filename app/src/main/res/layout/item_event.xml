@@ -97,7 +97,7 @@
                     android:ellipsize="end"/>
             </LinearLayout>
 
-            <!-- Date & Participants -->
+            <!-- Date Only (Participants Hidden) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -121,14 +121,15 @@
                     android:textSize="10sp"
                     android:fontFamily="@font/poppins_medium"/>
 
-                <!-- Participants -->
+                <!-- Participants - HIDDEN -->
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_profile"
                     app:tint="#8C8C8C"
                     android:layout_marginStart="12dp"
-                    android:layout_marginEnd="4dp"/>
+                    android:layout_marginEnd="4dp"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/txt_event_participants"
@@ -137,7 +138,8 @@
                     android:text="120 peserta"
                     android:textColor="#8C8C8C"
                     android:textSize="10sp"
-                    android:fontFamily="@font/poppins_regular"/>
+                    android:fontFamily="@font/poppins_regular"
+                    android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>
 

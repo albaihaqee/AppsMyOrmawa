@@ -1,15 +1,26 @@
 package com.inovarka.myormawa.views.dashboard.student;
 
+import android.Manifest;
+import android.app.DownloadManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,19 +28,22 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.adapters.EventAdapter;
 import com.inovarka.myormawa.models.Event;
+import com.inovarka.myormawa.repositories.EventRepository;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class EventActivity extends AppCompatActivity {
 
+    private static final String TAG = "EventActivity";
+    private static final int PERMISSION_REQUEST_CODE = 100;
+
     private RecyclerView rvEvents;
     private EventAdapter adapter;
-    private List<Event> eventList;
+    private EventRepository eventRepository;
+    private LinearLayout emptyStateView;
+    private LinearLayout loadingView;
+
+    private Event pendingDownloadEvent; // Untuk menyimpan event yang akan didownload
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +53,7 @@ public class EventActivity extends AppCompatActivity {
 
         initViews();
         setupRecyclerView();
-        loadDummyData();
+        loadEvents();
     }
 
     private void setStatusBar() {
@@ -52,6 +66,10 @@ public class EventActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
 
         rvEvents = findViewById(R.id.rv_events);
+        loadingView = findViewById(R.id.loading_view);
+        emptyStateView = findViewById(R.id.empty_state_view);
+
+        eventRepository = new EventRepository();
     }
 
     private void setupRecyclerView() {
@@ -60,6 +78,34 @@ public class EventActivity extends AppCompatActivity {
         rvEvents.setAdapter(adapter);
 
         adapter.setOnItemClickListener(this::showEventDetailDialog);
+    }
+
+    private void loadEvents() {
+        showLoading();
+
+        eventRepository.getUpcomingEvents().observe(this, new Observer<List<Event>>() {
+            @Override
+            public void onChanged(List<Event> events) {
+                hideLoading();
+
+                if (events != null && !events.isEmpty()) {
+                    Log.d(TAG, "Events loaded: " + events.size());
+
+                    // Debug log untuk cek data
+                    for (Event event : events) {
+                        Log.d(TAG, "Event: " + event.getTitle());
+                        Log.d(TAG, "Poster URL: " + event.getPosterUrl());
+                        Log.d(TAG, "GuideBook URL: " + event.getGuideBookUrl());
+                    }
+
+                    adapter.setEventList(events);
+                    showContent();
+                } else {
+                    Log.d(TAG, "No events found");
+                    showEmptyState();
+                }
+            }
+        });
     }
 
     private void showEventDetailDialog(Event event) {
@@ -71,124 +117,159 @@ public class EventActivity extends AppCompatActivity {
         TextView txtOrganizer = view.findViewById(R.id.txt_event_detail_organizer);
         TextView txtLocation = view.findViewById(R.id.txt_event_detail_location);
         TextView txtDate = view.findViewById(R.id.txt_event_detail_date);
-        TextView txtTime = view.findViewById(R.id.txt_event_detail_time);
-        TextView txtParticipants = view.findViewById(R.id.txt_event_detail_participants);
         TextView txtDescription = view.findViewById(R.id.txt_event_detail_description);
         View btnDownload = view.findViewById(R.id.btn_download_guidebook);
+
+        LinearLayout layoutTimeSection = view.findViewById(R.id.layout_time_section);
+        TextView txtTime = view.findViewById(R.id.txt_event_detail_time);
 
         txtTitle.setText(event.getTitle());
         txtOrganizer.setText(event.getOrganizer());
         txtLocation.setText(event.getLocation());
         txtDate.setText(event.getDate());
-        txtTime.setText(event.getTime() != null && !event.getTime().isEmpty() ? event.getTime() : "-");
-        txtParticipants.setText(event.getParticipantsText());
         txtDescription.setText(event.getDescription());
 
+        if (event.hasTimeInfo()) {
+            layoutTimeSection.setVisibility(View.VISIBLE);
+            txtTime.setText(event.getWaktuLengkap());
+        } else {
+            layoutTimeSection.setVisibility(View.GONE);
+        }
+
+        // Handle download button
+        if (event.hasGuideBook()) {
+            btnDownload.setVisibility(View.VISIBLE);
+            btnDownload.setOnClickListener(v -> {
+                dialog.dismiss();
+                checkPermissionAndDownload(event);
+            });
+        } else {
+            btnDownload.setVisibility(View.GONE);
+        }
+
         btnClose.setOnClickListener(v -> dialog.dismiss());
-        btnDownload.setOnClickListener(v -> {
-            Toast.makeText(this, "Mengunduh buku panduan...", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-        });
 
         dialog.setContentView(view);
         dialog.show();
     }
 
-    private void loadDummyData() {
-        List<Event> allEvents = new ArrayList<>();
+    private void checkPermissionAndDownload(Event event) {
+        pendingDownloadEvent = event;
 
-        allEvents.add(new Event(
-                "1",
-                "Diesnatalis Politeknik Negeri Jember",
-                "Politeknik Negeri Jember",
-                "15 Des 2025",
-                "07:00 - 16:00",
-                450,
-                "https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=533&fit=crop",
-                "Aula Soetomo Wadojo",
-                "Perayaan Dies Natalis Politeknik Negeri Jember yang ke-48 dengan berbagai rangkaian acara menarik.",
-                "",
-                "Perayaan"
-        ));
-
-        allEvents.add(new Event(
-                "2",
-                "Workshop UI/UX Design for Beginner",
-                "Lab Multimedia Gedung JTI",
-                "20 Nov 2025",
-                "13:00 - 15:00",
-                120,
-                "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=533&fit=crop",
-                "Lab Multimedia Gedung JTI",
-                "Workshop UI/UX Design untuk pemula yang ingin belajar desain antarmuka dan pengalaman pengguna.",
-                "",
-                "Workshop"
-        ));
-
-        allEvents.add(new Event(
-                "3",
-                "Seminar Nasional Teknologi Informasi",
-                "Politeknik Negeri Jember",
-                "25 Nov 2025",
-                "08:00 - 12:00",
-                200,
-                "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=533&fit=crop",
-                "Auditorium Gedung Utama",
-                "Seminar nasional membahas perkembangan teknologi informasi terkini.",
-                "",
-                "Seminar"
-        ));
-
-        allEvents.add(new Event(
-                "4",
-                "Kompetisi UI/UX Design",
-                "HMJ Teknologi Informasi",
-                "1 Des 2025",
-                "",
-                150,
-                "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=533&fit=crop",
-                "Online",
-                "Kompetisi desain UI/UX untuk mahasiswa se-Indonesia.",
-                "",
-                "Kompetisi"
-        ));
-
-        allEvents.add(new Event(
-                "5",
-                "Pelatihan Web Development",
-                "UKM Programming",
-                "5 Des 2025",
-                "09:00 - 16:00",
-                80,
-                "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=533&fit=crop",
-                "Lab Komputer JTI",
-                "Pelatihan intensif web development dari basic hingga advanced.",
-                "",
-                "Workshop"
-        ));
-
-        // Filter: Only show events with date >= today
-        eventList = filterUpcomingEvents(allEvents);
-        adapter.setEventList(eventList);
-    }
-
-    private List<Event> filterUpcomingEvents(List<Event> events) {
-        List<Event> upcomingEvents = new ArrayList<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", new Locale("id", "ID"));
-        Date today = new Date();
-
-        for (Event event : events) {
-            try {
-                Date eventDate = sdf.parse(event.getDate());
-                if (eventDate != null && !eventDate.before(today)) {
-                    upcomingEvents.add(event);
-                }
-            } catch (ParseException e) {
-                // If parse fails, include the event anyway
-                upcomingEvents.add(event);
+        // Android 10+ tidak perlu permission WRITE_EXTERNAL_STORAGE untuk Downloads
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            downloadGuideBook(event);
+        } else {
+            // Android 9 dan dibawah perlu permission
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_CODE);
+            } else {
+                downloadGuideBook(event);
             }
         }
+    }
 
-        return upcomingEvents;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (pendingDownloadEvent != null) {
+                    downloadGuideBook(pendingDownloadEvent);
+                }
+            } else {
+                Toast.makeText(this, "Izin storage diperlukan untuk download", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void downloadGuideBook(Event event) {
+        String guideBookUrl = event.getGuideBookUrl();
+
+        if (guideBookUrl == null || guideBookUrl.isEmpty()) {
+            Toast.makeText(this, "URL buku panduan tidak tersedia", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "GuideBook URL is null or empty");
+            return;
+        }
+
+        // Validasi URL
+        if (!guideBookUrl.startsWith("http://") && !guideBookUrl.startsWith("https://")) {
+            Toast.makeText(this, "URL buku panduan tidak valid", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Invalid URL: " + guideBookUrl);
+            return;
+        }
+
+        try {
+            Log.d(TAG, "Starting download from: " + guideBookUrl);
+
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(guideBookUrl));
+
+            // Set notification
+            request.setTitle("Buku Panduan Event");
+            request.setDescription("Mengunduh " + event.getTitle());
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+            // Set file name
+            String fileName = event.getGuideBookFilename();
+            if (fileName == null || fileName.isEmpty()) {
+                fileName = "BukuPanduan_" + event.getId() + ".pdf";
+            }
+
+            Log.d(TAG, "File name: " + fileName);
+
+            // Set destination (Downloads folder)
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+
+            // Allow scanning by media scanner
+            request.allowScanningByMediaScanner();
+
+            // Set MIME type
+            request.setMimeType("application/pdf");
+
+            // Allow download over mobile data and WiFi
+            request.setAllowedNetworkTypes(
+                    DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI
+            );
+
+            // Get download manager
+            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+
+            if (downloadManager != null) {
+                long downloadId = downloadManager.enqueue(request);
+                Log.d(TAG, "Download started with ID: " + downloadId);
+                Toast.makeText(this, "Mengunduh buku panduan...", Toast.LENGTH_LONG).show();
+            } else {
+                Log.e(TAG, "DownloadManager is null");
+                Toast.makeText(this, "Gagal memulai download", Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Download error: " + e.getMessage(), e);
+            Toast.makeText(this, "Gagal mengunduh: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void showLoading() {
+        if (loadingView != null) loadingView.setVisibility(View.VISIBLE);
+        if (rvEvents != null) rvEvents.setVisibility(View.GONE);
+        if (emptyStateView != null) emptyStateView.setVisibility(View.GONE);
+    }
+
+    private void hideLoading() {
+        if (loadingView != null) loadingView.setVisibility(View.GONE);
+    }
+
+    private void showContent() {
+        if (rvEvents != null) rvEvents.setVisibility(View.VISIBLE);
+        if (emptyStateView != null) emptyStateView.setVisibility(View.GONE);
+    }
+
+    private void showEmptyState() {
+        if (rvEvents != null) rvEvents.setVisibility(View.GONE);
+        if (emptyStateView != null) emptyStateView.setVisibility(View.VISIBLE);
     }
 }

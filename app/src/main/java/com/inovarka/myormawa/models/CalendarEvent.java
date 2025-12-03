@@ -1,72 +1,85 @@
 package com.inovarka.myormawa.models;
 
-import java.util.Date;
+import com.google.gson.annotations.SerializedName;
 
 public class CalendarEvent {
+    @SerializedName("id")
     private String id;
+
+    @SerializedName("title")
     private String title;
+
+    @SerializedName("organizer")
+    private String organizer;
+
+    @SerializedName("location")
     private String location;
-    private String time;
-    private Date date;
+
+    @SerializedName("tgl_mulai")
+    private String tglMulai;
+
+    @SerializedName("tgl_selesai")
+    private String tglSelesai;
+
+    @SerializedName("waktu_mulai")
+    private String waktuMulai;
+
+    @SerializedName("waktu_selesai")
+    private String waktuSelesai;
+
+    @SerializedName("time_display")
+    private String timeDisplay;
+
+    @SerializedName("color")
     private String color;
 
+    // Constructor kosong
     public CalendarEvent() {
     }
 
-    public CalendarEvent(String id, String title, String location, String time, Date date, String color) {
-        this.id = id;
-        this.title = title;
-        this.location = location;
-        this.time = time;
-        this.date = date;
-        this.color = color;
-    }
-
+    // Getters
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public String getOrganizer() {
+        return organizer;
     }
 
     public String getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public String getTglMulai() {
+        return tglMulai;
     }
 
-    public String getTime() {
-        return time;
+    public String getTglSelesai() {
+        return tglSelesai;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public String getWaktuMulai() {
+        return waktuMulai;
     }
 
-    public Date getDate() {
-        return date;
+    public String getWaktuSelesai() {
+        return waktuSelesai;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public String getTimeDisplay() {
+        return timeDisplay;
     }
 
     public String getColor() {
         return color;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    // Helper method untuk compatibility dengan adapter
+    public String getTime() {
+        return timeDisplay;
     }
 }
