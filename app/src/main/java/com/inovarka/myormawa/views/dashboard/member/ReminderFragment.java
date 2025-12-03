@@ -24,20 +24,23 @@ public class ReminderFragment extends Fragment {
 
     private RecyclerView rvReminder;
     private ReminderAdapter adapter;
+    private View rootView;
 
     public ReminderFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        View v = inflater.inflate(R.layout.fragment_reminder, container, false);
-        rvReminder = v.findViewById(R.id.rv_reminder);
+
+        rootView = inflater.inflate(R.layout.fragment_reminder, container, false);
+
+        rvReminder = rootView.findViewById(R.id.rv_reminder);
         rvReminder.setLayoutManager(new LinearLayoutManager(getContext()));
 
         setupStatusBar();
         loadReminders();
 
-        return v;
+        return rootView;
     }
 
     private void setupStatusBar() {
@@ -46,7 +49,8 @@ public class ReminderFragment extends Fragment {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.primary_blue));
 
-            WindowInsetsControllerCompat windowInsetsController = new WindowInsetsControllerCompat(window, window.getDecorView());
+            WindowInsetsControllerCompat windowInsetsController =
+                    new WindowInsetsControllerCompat(window, window.getDecorView());
             windowInsetsController.setAppearanceLightStatusBars(false);
         }
     }
@@ -54,12 +58,27 @@ public class ReminderFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadReminders();
+        loadReminders(); // refresh data saat kembali
     }
 
     private void loadReminders() {
+
+        if (rootView == null) return; // safety
+
         List<ReminderItem> list = ReminderStorage.getReminders(getContext());
+
         adapter = new ReminderAdapter(list);
         rvReminder.setAdapter(adapter);
+
+        // Empty state handling
+        View emptyState = rootView.findViewById(R.id.tv_empty_state);
+
+        if (list == null || list.isEmpty()) {
+            rvReminder.setVisibility(View.GONE);
+            emptyState.setVisibility(View.VISIBLE);
+        } else {
+            rvReminder.setVisibility(View.VISIBLE);
+            emptyState.setVisibility(View.GONE);
+        }
     }
 }

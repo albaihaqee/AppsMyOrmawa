@@ -1,8 +1,13 @@
 package com.inovarka.myormawa.views.dashboard.member;
 
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -10,35 +15,35 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.adapters.EventMemberAdapter;
+import com.inovarka.myormawa.network.ApiClient;
+import com.inovarka.myormawa.network.ApiService;
 import com.inovarka.myormawa.component.EventDetailDialog;
 import com.inovarka.myormawa.models.EventMember;
+import com.inovarka.myormawa.models.ApiResponseList;
+import com.inovarka.myormawa.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EventFragment extends Fragment {
 
     private RecyclerView rvEvents;
     private EventMemberAdapter eventAdapter;
-    private List<EventMember> eventList;
-    private List<EventMember> eventListFull;
+    private List<EventMember> eventList = new ArrayList<>();
     private LinearLayout layoutEmptyState;
     private ProgressBar progressBar;
     private TextView tvEventCount;
-    private String currentFilter = "all";
 
     public EventFragment() {}
 
@@ -64,7 +69,6 @@ public class EventFragment extends Fragment {
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
         progressBar = view.findViewById(R.id.progress_bar);
         tvEventCount = view.findViewById(R.id.tv_event_count);
-
     }
 
     private void setupStatusBar() {
@@ -73,74 +77,59 @@ public class EventFragment extends Fragment {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.primary_blue));
 
-            WindowInsetsControllerCompat windowInsetsController = new WindowInsetsControllerCompat(window, window.getDecorView());
-            windowInsetsController.setAppearanceLightStatusBars(false);
+            WindowInsetsControllerCompat wic =
+                    new WindowInsetsControllerCompat(window, window.getDecorView());
+            wic.setAppearanceLightStatusBars(false);
         }
     }
+
     private void setupRecyclerView() {
-        eventList = new ArrayList<>();
-        eventListFull = new ArrayList<>();
-        eventAdapter = new EventMemberAdapter(eventList, event -> {
-            // Handle event click - show dialog
-            showEventDetailDialog(event);
-        });
+        eventAdapter = new EventMemberAdapter(eventList, this::showEventDetailDialog);
         rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
         rvEvents.setAdapter(eventAdapter);
-    }
-
-
-
-
-
-    private void filterEvents() {
-        eventList.clear();
-
-        if (currentFilter.equals("all")) {
-            eventList.addAll(eventListFull);
-        } else {
-            for (EventMember event : eventListFull) {
-                if (event.getStatus().equals(currentFilter)) {
-                    eventList.add(event);
-                }
-            }
-        }
-
-        eventAdapter.notifyDataSetChanged();
-        updateEventCount();
-        updateEmptyState();
     }
 
     private void loadEventData() {
         showLoading(true);
 
-        // Simulate loading
-        if (getView() != null) {
-            getView().postDelayed(() -> {
-                // Data dummy - ganti dengan data dari API
-                eventListFull.add(new EventMember("1", "Workshop UI/UX Design for Beginner",
-                        "Workshop", "Lab Multimedia Gedung JTI", "20 Nov 2025", "09:00", "17:00",
-                        120, "", "upcoming", "Belajar desain UI/UX dari nol"));
+        SessionManager sm = new SessionManager(requireContext());
+        String ormawaId = sm.getIdOrmawa();
 
-                eventListFull.add(new EventMember("2", "Seminar Teknologi AI",
-                        "Seminar", "Auditorium Utama", "22 Nov 2025", "10:00", "15:00",
-                        200, "", "upcoming", "Pengenalan AI dan implementasinya"));
+        ApiService api = ApiClient.getApiService();
+        api.getEventsByOrmawa(ormawaId).enqueue(new Callback<ApiResponseList<EventMember>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<EventMember>> call,
+                                   Response<ApiResponseList<EventMember>> response) {
 
-                eventListFull.add(new EventMember("3", "Kompetisi Mobile Apps Development",
-                        "Kompetisi", "Online", "25 Nov 2025", "08:00", "18:00",
-                        85, "", "ongoing", "Lomba membuat aplikasi mobile"));
-
-                eventListFull.add(new EventMember("4", "Pelatihan Public Speaking",
-                        "Pelatihan", "Ruang Seminar Lt. 2", "18 Nov 2025", "13:00", "16:00",
-                        50, "", "finished", "Meningkatkan skill public speaking"));
-
-                eventListFull.add(new EventMember("5", "Hackathon Innovation Week",
-                        "Kompetisi", "Gedung Innovation Center", "28 Nov 2025", "08:00", "20:00",
-                        150, "", "upcoming", "Hackathon untuk solusi inovatif"));
-
-                filterEvents();
                 showLoading(false);
-            }, 1000);
-        }
+
+                if (!response.isSuccessful() || response.body() == null) {
+                    showEmptyState();
+                    Toast.makeText(getContext(), "Gagal memuat data", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                ApiResponseList<EventMember> res = response.body();
+
+                if (res.isSuccess()) {
+                    eventList.clear();
+                    eventList.addAll(res.getData());
+                    eventAdapter.notifyDataSetChanged();
+
+                    updateEventCount();
+                    updateEmptyState();
+                } else {
+                    showEmptyState();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<EventMember>> call, Throwable t) {
+                showLoading(false);
+                showEmptyState();
+                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showLoading(boolean show) {
@@ -153,13 +142,12 @@ public class EventFragment extends Fragment {
     }
 
     private void updateEmptyState() {
-        if (eventList.isEmpty()) {
-            layoutEmptyState.setVisibility(View.VISIBLE);
-            rvEvents.setVisibility(View.GONE);
-        } else {
-            layoutEmptyState.setVisibility(View.GONE);
-            rvEvents.setVisibility(View.VISIBLE);
-        }
+        layoutEmptyState.setVisibility(eventList.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void showEmptyState() {
+        rvEvents.setVisibility(View.GONE);
+        layoutEmptyState.setVisibility(View.VISIBLE);
     }
 
     private void showEventDetailDialog(EventMember event) {

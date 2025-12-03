@@ -36,6 +36,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -77,6 +78,13 @@ dependencies {
     // Camera & QR Scanner
     implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")
     implementation("com.google.zxing:core:3.5.2")
+
+// Google Play Services - Location
+    implementation("com.google.android.gms:play-services-location:21.1.0")
+
+    // AndroidX Lifecycle (untuk ViewModel & LiveData)
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-livedata:2.6.2")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

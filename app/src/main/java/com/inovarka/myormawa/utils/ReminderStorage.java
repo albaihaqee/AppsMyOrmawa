@@ -1,12 +1,16 @@
 package com.inovarka.myormawa.utils;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.inovarka.myormawa.models.Meeting;
 import com.inovarka.myormawa.models.ReminderItem;
+import com.inovarka.myormawa.models.ReminderReceiver;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -34,10 +38,9 @@ public class ReminderStorage {
     public static void addReminder(Context context, ReminderItem item) {
         List<ReminderItem> list = getReminders(context);
         // prevent duplicate by meeting id
-        for (ReminderItem r : list) {
-            if (r.getMeeting().getId().equals(item.getMeeting().getId())) {
-                // replace with new minutesBefore
-                r = item;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getMeeting().getId().equals(item.getMeeting().getId())) {
+                list.set(i, item); // ✅ ganti item di list
                 saveReminders(context, list);
                 return;
             }
@@ -45,6 +48,25 @@ public class ReminderStorage {
         list.add(item);
         saveReminders(context, list);
     }
+
+    public static void scheduleReminder(Context context, ReminderItem item) {
+        long meetingTime = item.getMeeting().getTimeInMillis();
+        long reminderTime = meetingTime - item.getMinutesBefore() * 60 * 1000;
+
+        Intent intent = new Intent(context, ReminderReceiver.class);
+        intent.putExtra("meeting_name", item.getMeeting().getNama());
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                item.getMeeting().getId().hashCode(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderTime, pendingIntent);
+    }
+
 
     public static void removeReminder(Context context, String meetingId) {
         List<ReminderItem> list = getReminders(context);

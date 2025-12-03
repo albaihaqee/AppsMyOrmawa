@@ -1,51 +1,33 @@
 package com.inovarka.myormawa.models;
 
 public class EventMember {
+
     private String id;
     private String title;
-    private String category;
     private String location;
-    private String date;
-    private String startTime;
-    private String endTime;
-    private int participants;
-    private String posterUrl;
-    private String status; // "upcoming", "ongoing", "finished"
     private String description;
-
-    public EventMember(String id, String title, String category, String location,
-                 String date, String startTime, String endTime, int participants,
-                 String posterUrl, String status, String description) {
-        this.id = id;
-        this.title = title;
-        this.category = category;
-        this.location = location;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.participants = participants;
-        this.posterUrl = posterUrl;
-        this.status = status;
-        this.description = description;
-    }
+    private String tgl_mulai;
+    private String tgl_selesai;
+    private String waktu_mulai;
+    private String waktu_selesai;
+    private String posterUrl;
+    private String ormawa_id;
 
     public String getId() { return id; }
     public String getTitle() { return title; }
-    public String getCategory() { return category; }
     public String getLocation() { return location; }
-    public String getDate() { return date; }
-    public String getStartTime() { return startTime; }
-    public String getEndTime() { return endTime; }
-    public int getParticipants() { return participants; }
-    public String getPosterUrl() { return posterUrl; }
-    public String getStatus() { return status; }
     public String getDescription() { return description; }
+    public String getTgl_mulai() { return tgl_mulai; }
+    public String getTgl_selesai() { return tgl_selesai; }
+    public String getWaktu_mulai() { return waktu_mulai; }
+    public String getWaktu_selesai() { return waktu_selesai; }
+    public String getPosterUrl() { return posterUrl; }
+    public String getOrmawa_id() { return ormawa_id; }
 
-    public String getParticipantsText() {
-        return participants + " peserta";
-    }
-
-    public String getTimeRange() {
-        return startTime + " - " + endTime;
+    // Untuk tampilan
+    public String getDisplayDate() {
+        if (tgl_mulai == null || tgl_selesai == null) return "";
+        if (tgl_mulai.equals(tgl_selesai)) return tgl_mulai;
+        return tgl_mulai + " - " + tgl_selesai;
     }
 }

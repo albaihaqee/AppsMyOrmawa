@@ -190,7 +190,7 @@ public class LoginActivity extends AppCompatActivity {
 
         editor.putBoolean(Constants.KEY_IS_LOGGED_IN, true);
         editor.putString(Constants.KEY_TOKEN, data.getToken());
-        editor.putInt(Constants.KEY_USER_ID, user.getId());
+        editor.putString(Constants.KEY_USER_ID, String.valueOf(user.getId()));
         editor.putString(Constants.KEY_NIM, user.getNim());
         editor.putString(Constants.KEY_FULL_NAME, user.getFullName());
         editor.putString(Constants.KEY_EMAIL, user.getEmail());
@@ -198,8 +198,16 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString(Constants.KEY_ANGKATAN, user.getAngkatan());
         editor.putInt(Constants.KEY_LEVEL, user.getLevel());
 
+        if (user.getIdOrmawa() != null) {
+            editor.putString(Constants.KEY_ID_ORMAWA, user.getIdOrmawa());
+        }
+
         editor.apply();
+
+        Log.d("LOGIN_DEBUG", "ID ORMAWA = " + user.getIdOrmawa());
+
     }
+
 
     private boolean validateInputs() {
         String email = edtEmail.getText().toString().trim();

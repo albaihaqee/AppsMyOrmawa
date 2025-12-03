@@ -18,19 +18,25 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 
 import com.inovarka.myormawa.R;
+import com.inovarka.myormawa.models.ApiResponseList;
+import com.inovarka.myormawa.models.Meeting;
+import com.inovarka.myormawa.network.ApiClient;
+import com.inovarka.myormawa.network.ApiService;
 import com.inovarka.myormawa.utils.Constants;
-
-import static android.content.Context.MODE_PRIVATE;
+import com.inovarka.myormawa.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeMemberFragment extends Fragment {
 
     private TextView txtUserName;
     private LinearLayout containerAnnouncements;
     private List<AnnouncementMeeting> announcementList;
-
 
     @Nullable
     @Override
@@ -45,8 +51,8 @@ public class HomeMemberFragment extends Fragment {
         setupStatusBar();
         initViews(view);
         loadUserData();
-        setupAnnouncements();
         setupClickListeners(view);
+        loadAnnouncements(); // langsung load dari API
     }
 
     private void setupStatusBar() {
@@ -66,7 +72,7 @@ public class HomeMemberFragment extends Fragment {
     }
 
     private void loadUserData() {
-        SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE);
+        SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, getActivity().MODE_PRIVATE);
         String fullName = prefs.getString(Constants.KEY_FULL_NAME, "User");
 
         if (txtUserName != null) {
@@ -74,16 +80,63 @@ public class HomeMemberFragment extends Fragment {
         }
     }
 
-    private void setupAnnouncements() {
-        // TODO: Load announcements from API
-        // Untuk sementara kosongkan atau buat dummy data
-        containerAnnouncements.removeAllViews();
+    private void setupClickListeners(View view) {
+        view.findViewById(R.id.btn_anggota).setOnClickListener(v -> startActivity(new Intent(getActivity(), MemberActivity.class)));
+        view.findViewById(R.id.btn_absensi).setOnClickListener(v -> startActivity(new Intent(getActivity(), PresenceHistoryActivity.class)));
+        view.findViewById(R.id.btn_kegiatan).setOnClickListener(v -> startActivity(new Intent(getActivity(), MeetingActivity.class)));
+        view.findViewById(R.id.btn_dokumen).setOnClickListener(v -> startActivity(new Intent(getActivity(), DocumentActivity.class)));
+        view.findViewById(R.id.btn_notification).setOnClickListener(v -> startActivity(new Intent(getActivity(), NotificationMemberActivity.class)));
+        view.findViewById(R.id.txt_see_all_announcements).setOnClickListener(v -> startActivity(new Intent(getActivity(), MeetingActivity.class)));
+    }
 
-        // Tambahkan empty state jika belum ada pengumuman
-        addEmptyStateAnnouncement();
+    private void loadAnnouncements() {
+        containerAnnouncements.removeAllViews(); // clear dulu
+
+        SessionManager sessionManager = new SessionManager(requireContext());
+        String ormawaId = sessionManager.getIdOrmawa();
+
+        ApiService api = ApiClient.getApiService();
+        api.getKegiatanByOrmawa(ormawaId).enqueue(new Callback<ApiResponseList<Meeting>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<Meeting>> call, Response<ApiResponseList<Meeting>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    List<Meeting> meetings = response.body().getData();
+
+                    if (meetings.isEmpty()) {
+                        addEmptyStateAnnouncement();
+                        return;
+                    }
+
+                    announcementList = new ArrayList<>();
+                    int maxDisplay = Math.min(meetings.size(), 3);
+                    for (int i = 0; i < maxDisplay; i++) {
+                        Meeting m = meetings.get(i);
+                        announcementList.add(new AnnouncementMeeting(
+                                m.getId(),
+                                "INFO",
+                                m.getNama(),
+                                m.getTanggal() + ", " + m.getWaktu(),
+                                m.getLokasi(),
+                                m.getAgenda(),
+                                false
+                        ));
+                    }
+                    displayAnnouncements();
+                } else {
+                    addEmptyStateAnnouncement();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<Meeting>> call, Throwable t) {
+                addEmptyStateAnnouncement();
+            }
+        });
     }
 
     private void addEmptyStateAnnouncement() {
+        containerAnnouncements.removeAllViews();
+
         TextView emptyText = new TextView(getContext());
         emptyText.setText("Belum ada pengumuman internal");
         emptyText.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondary));
@@ -95,92 +148,10 @@ public class HomeMemberFragment extends Fragment {
         containerAnnouncements.addView(emptyText);
     }
 
-    private void setupClickListeners(View view) {
-
-        // Anggota Button
-        view.findViewById(R.id.btn_anggota).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), MemberActivity.class);
-            startActivity(intent);
-        });
-
-        // Absensi Button
-        view.findViewById(R.id.btn_absensi).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), PresenceHistoryActivity.class);
-            startActivity(intent);
-        });
-
-        // Kegiatan Button
-        view.findViewById(R.id.btn_kegiatan).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), MeetingActivity.class);
-            startActivity(intent);
-        });
-
-        // Dokumen Button
-        view.findViewById(R.id.btn_dokumen).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), DocumentActivity.class);
-            startActivity(intent);
-        });
-
-        view.findViewById(R.id.btn_notification).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), NotificationMemberActivity.class);
-            startActivity(intent);
-        });
-
-        // See All Announcements Button
-        view.findViewById(R.id.txt_see_all_announcements).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), MeetingActivity.class);
-            startActivity(intent);
-        });
-        loadAnnouncements();
-    }
-
-    private void loadAnnouncements() {
-        announcementList = new ArrayList<>();
-
-        // Data dummy - ambil dari API atau database
-        // Ini adalah kegiatan yang akan datang (upcoming meetings)
-        announcementList.add(new AnnouncementMeeting(
-                "1",
-                "PENTING: Rapat Bulanan",
-                "Rapat Koordinasi Tim",
-                "Hari Ini, 20.00",
-                "Gedung JTI Lantai 1",
-                "Agenda: Evaluasi kegiatan & planning event",
-                true // isImportant
-        ));
-
-        announcementList.add(new AnnouncementMeeting(
-                "2",
-                "INFO: Workshop",
-                "Workshop Android Development",
-                "Besok, 13.00",
-                "Lab Komputer A",
-                "Agenda: Pelatihan pembuatan aplikasi mobile",
-                false
-        ));
-
-        announcementList.add(new AnnouncementMeeting(
-                "3",
-                "REMINDER: Seminar",
-                "Seminar Teknologi AI",
-                "27 Nov, 10.00",
-                "Auditorium Utama",
-                "Agenda: Pengenalan AI dalam software development",
-                false
-        ));
-
-        // Display announcements
-        displayAnnouncements();
-    }
-
     private void displayAnnouncements() {
-        if (containerAnnouncements == null) return;
-
         containerAnnouncements.removeAllViews();
 
-        // Maksimal tampilkan 3 pengumuman teratas
         int maxDisplay = Math.min(announcementList.size(), 3);
-
         for (int i = 0; i < maxDisplay; i++) {
             AnnouncementMeeting announcement = announcementList.get(i);
             View itemView = LayoutInflater.from(getContext())
@@ -199,17 +170,11 @@ public class HomeMemberFragment extends Fragment {
             tvAgenda.setText("Agenda: " + announcement.getAgenda());
 
             // Set color based on importance
-            if (announcement.isImportant()) {
-                tvStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-            } else {
-                tvStatus.setTextColor(getResources().getColor(R.color.blue_500));
-            }
+            tvStatus.setTextColor(announcement.isImportant() ?
+                    getResources().getColor(android.R.color.holo_red_dark) :
+                    getResources().getColor(R.color.blue_500));
 
-            // Click listener to open meeting detail or MeetingActivity
-            itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(getActivity(), MeetingActivity.class);
-                startActivity(intent);
-            });
+            itemView.setOnClickListener(v -> startActivity(new Intent(getActivity(), MeetingActivity.class)));
 
             containerAnnouncements.addView(itemView);
         }
@@ -217,13 +182,13 @@ public class HomeMemberFragment extends Fragment {
 
     // Inner class untuk model announcement
     private static class AnnouncementMeeting {
-        private String id;
-        private String status;
-        private String title;
-        private String dateTime;
-        private String location;
-        private String agenda;
-        private boolean isImportant;
+        private final String id;
+        private final String status;
+        private final String title;
+        private final String dateTime;
+        private final String location;
+        private final String agenda;
+        private final boolean isImportant;
 
         public AnnouncementMeeting(String id, String status, String title, String dateTime,
                                    String location, String agenda, boolean isImportant) {
