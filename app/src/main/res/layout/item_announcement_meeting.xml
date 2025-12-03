@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:backgroundTint="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <!-- Left Border -->
+        <View
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#2C4EEF"
+            android:layout_marginEnd="12dp"/>
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Status Badge -->
+            <TextView
+                android:id="@+id/tv_announcement_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PENTING: Rapat Bulanan"
+                android:textColor="#FF5252"
+                android:textSize="11sp"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginBottom="4dp"/>
+
+            <!-- Meeting Name -->
+            <TextView
+                android:id="@+id/tv_announcement_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rapat Koordinasi Tim"
+                android:textColor="#1A1A1A"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_semibold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginBottom="6dp"/>
+
+            <!-- Date & Time -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="#757575"
+                    android:layout_marginEnd="4dp"
+                    android:layout_gravity="center_vertical"/>
+
+                <TextView
+                    android:id="@+id/tv_announcement_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hari Ini, 20.00"
+                    android:textColor="#757575"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_regular"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" - "
+                    android:textColor="#757575"
+                    android:textSize="12sp"/>
+
+                <TextView
+                    android:id="@+id/tv_announcement_location"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Gedung JTI Lantai 1"
+                    android:textColor="#757575"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+            </LinearLayout>
+
+            <!-- Agenda -->
+            <TextView
+                android:id="@+id/tv_announcement_agenda"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Agenda: Evaluasi kegiatan &amp; planning event"
+                android:textColor="#4A4A4A"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_regular"
+                android:maxLines="2"
+                android:ellipsize="end"/>
+        </LinearLayout>
+
+        <!-- Arrow Icon -->
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_arrow_right"
+            app:tint="#BDBDBD"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

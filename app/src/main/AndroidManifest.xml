@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Internet Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- Camera Permissions & Features -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- Camera Permissions & Features -->
@@ -13,6 +13,9 @@
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
+
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Storage Permissions -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- Storage Permissions -->
@@ -32,6 +35,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Myormawa"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".views.dashboard.member.PresenceHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.DocumentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.MemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.MeetingActivity"
+            android:exported="false" /> <!-- Splash Screen (Launcher) -->
 
         <!-- Splash & Onboarding -->
         <activity
@@ -40,15 +55,15 @@
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity> <!-- Onboarding -->
         </activity>
 
         <activity
             android:name=".views.onboarding.OnboardingActivity"
-            android:exported="false" />
-
-        <!-- Authentication -->
+            android:exported="false" /> <!-- Authentication -->
         <activity
             android:name=".views.auth.RoleSelectionActivity"
             android:exported="false" />
@@ -78,9 +93,7 @@
             android:exported="false" />
         <activity
             android:name=".views.auth.ResetPasswordSuccessActivity"
-            android:exported="false" />
-
-        <!-- Dashboard Student -->
+            android:exported="false" /> <!-- Dashboard Student -->
         <activity
             android:name=".views.dashboard.student.DashboardStudentActivity"
             android:exported="false"
@@ -128,9 +141,7 @@
             android:exported="false" />
         <activity
             android:name=".views.dashboard.student.ScholarshipActivity"
-            android:exported="false" />
-
-        <!-- Dashboard Member -->
+            android:exported="false" /> <!-- Dashboard Member -->
         <activity
             android:name=".views.dashboard.member.DashboardMemberActivity"
             android:exported="false"
@@ -141,6 +152,7 @@
         <activity
             android:name=".views.dashboard.member.ScanActivity"
             android:exported="false"
+            tools:ignore="LockedOrientationActivity" /> <!-- Font Metadata -->
             tools:ignore="LockedOrientationActivity" />
 
         <!-- Member - Change Email -->
