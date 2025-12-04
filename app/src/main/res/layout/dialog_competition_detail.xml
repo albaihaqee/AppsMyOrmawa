@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="@font/poppins_semibold"
-            android:text="Detail &amp; Pendaftaran"
+            android:text="Detail Kompetisi"
             android:textColor="#1A1A1A"
             android:textSize="16sp" />
 
@@ -71,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="Hackathon AI Innovation"
+                android:text="Hackathon Generative AI"
                 android:textColor="#1A1A1A"
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp" />
@@ -106,7 +106,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/poppins_semibold"
-                    android:text="HMJ Teknologi Informasi"
+                    android:text="BPSDM Kominfo"
                     android:textColor="#1A1A1A"
                     android:textSize="12sp"
                     android:gravity="end" />
@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="16dp">
 
                 <ImageView
                     android:layout_width="16dp"
@@ -142,115 +142,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/poppins_semibold"
-                    android:text="10-12 Januari 2026"
-                    android:textColor="#1A1A1A"
-                    android:textSize="12sp"
-                    android:gravity="end" />
-            </LinearLayout>
-
-            <!-- Deadline -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_calendar"
-                    app:tint="#2C4EEF"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Deadline"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/txt_competition_detail_deadline"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="5 Januari 2026"
-                    android:textColor="#1A1A1A"
-                    android:textSize="12sp"
-                    android:gravity="end" />
-            </LinearLayout>
-
-            <!-- Prize -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="#2C4EEF"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Hadiah"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/txt_competition_detail_prize"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Total Hadiah 15 Juta"
-                    android:textColor="#1A1A1A"
-                    android:textSize="12sp"
-                    android:gravity="end" />
-            </LinearLayout>
-
-            <!-- Team Size -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="#2C4EEF"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Tim"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/txt_competition_detail_team"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Maks 50 tim"
+                    android:text="03 Dec 2025 - 10 Dec 2025"
                     android:textColor="#1A1A1A"
                     android:textSize="12sp"
                     android:gravity="end" />
@@ -279,7 +171,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
-                android:text="Kompetisi hackathon bertema AI Innovation untuk mahasiswa se-Indonesia."
+                android:text="Menciptakan solusi inovatif menggunakan teknologi Generative AI untuk menyelesaikan permasalahan nyata di masyarakat."
                 android:textColor="#666666"
                 android:textSize="12sp"
                 android:lineSpacingExtra="2dp"
