@@ -13,6 +13,7 @@ import com.inovarka.myormawa.models.EventMember;
 import com.inovarka.myormawa.models.CalendarEvent;
 import com.inovarka.myormawa.models.ChangeEmailRequest;
 import com.inovarka.myormawa.models.ChangePasswordRequest;
+import com.inovarka.myormawa.models.Competition;
 import com.inovarka.myormawa.models.Event;
 import com.inovarka.myormawa.models.FileUploadData;
 import com.inovarka.myormawa.models.ForgotPasswordRequest;
@@ -26,6 +27,7 @@ import com.inovarka.myormawa.models.Organization;
 import com.inovarka.myormawa.models.RegisterRequest;
 import com.inovarka.myormawa.models.ResendOtpRequest;
 import com.inovarka.myormawa.models.ResetPasswordRequest;
+import com.inovarka.myormawa.models.Scholarship;
 import com.inovarka.myormawa.models.VerifyOtpRequest;
 
 import java.util.List;
@@ -113,6 +115,22 @@ public interface ApiService {
 
     @GET("documents.php")
     Call<ApiResponseList<Document>> getDocumentsByOrmawa(@Query("id_ormawa") String idOrmawa);
+
+    Call<ApiResponseSingle<Event>> getEventById(@Query("id") String id);
+
+    // COMPETITION ENDPOINTS
+    @GET("competition.php")
+    Call<ApiResponseList<Competition>> getAllCompetitions();
+
+    @GET("competition.php")
+    Call<ApiResponseSingle<Competition>> getCompetitionById(@Query("id") String id);
+
+    // SCHOLARSHIP ENDPOINTS
+    @GET("scholarship.php")
+    Call<ApiResponseList<Scholarship>> getAllScholarships();
+
+    @GET("scholarship.php")
+    Call<ApiResponseSingle<Scholarship>> getScholarshipById(@Query("id") String id);
 
     // CALENDAR ENDPOINTS
     @GET("calendar.php")

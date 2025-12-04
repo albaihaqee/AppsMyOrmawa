@@ -35,46 +35,31 @@
 
         <!-- Content -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginStart="12dp"
             android:orientation="vertical">
 
-            <!-- Header with Title and Arrow -->
-            <LinearLayout
+            <!-- Title -->
+            <TextView
+                android:id="@+id/txt_scholarship_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="5dp">
-
-                <TextView
-                    android:id="@+id/txt_scholarship_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Beasiswa PPA 2025"
-                    android:textColor="#1A1A1A"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:maxLines="2"
-                    android:ellipsize="end"/>
-
-                <!-- Arrow Right Icon -->
-                <ImageView
-                    android:id="@+id/img_arrow_right"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_arrow_right"
-                    app:tint="#8C8C8C"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
+                android:text="Beasiswa LPDP"
+                android:textColor="#1A1A1A"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_semibold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginBottom="5dp"/>
 
             <!-- Provider -->
             <TextView
                 android:id="@+id/txt_scholarship_provider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kementrian Pendidikan"
+                android:text="Lembaga Pengelola Dana Pendidikan (LPDP)"
                 android:textColor="#8C8C8C"
                 android:textSize="10sp"
                 android:fontFamily="@font/poppins_regular"
@@ -82,66 +67,39 @@
                 android:ellipsize="end"
                 android:layout_marginBottom="8dp"/>
 
-            <!-- Nominal Row -->
+            <!-- Deadline -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="4dp">
+                android:gravity="center_vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nominal"
-                    android:textColor="#8C8C8C"
-                    android:textSize="10sp"
-                    android:fontFamily="@font/poppins_regular"/>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1"/>
-
-                <TextView
-                    android:id="@+id/txt_scholarship_amount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rp 4.000.000/semester"
-                    android:textColor="#4CAF50"
-                    android:textSize="10sp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:layout_marginStart="8dp"/>
-            </LinearLayout>
-
-            <!-- Deadline Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Deadline"
-                    android:textColor="#8C8C8C"
-                    android:textSize="10sp"
-                    android:fontFamily="@font/poppins_regular"/>
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1"/>
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="#2C4EEF"
+                    android:layout_marginEnd="4dp"/>
 
                 <TextView
                     android:id="@+id/txt_scholarship_deadline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="30 November 2025"
-                    android:textColor="#1A1A1A"
+                    android:text="25 Dec 2025"
+                    android:textColor="#2C4EEF"
                     android:textSize="10sp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:layout_marginStart="8dp"/>
+                    android:fontFamily="@font/poppins_medium"/>
             </LinearLayout>
         </LinearLayout>
+
+        <!-- Arrow Right Icon -->
+        <ImageView
+            android:id="@+id/img_arrow_right"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_arrow_right"
+            app:tint="#8C8C8C"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center_vertical"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
