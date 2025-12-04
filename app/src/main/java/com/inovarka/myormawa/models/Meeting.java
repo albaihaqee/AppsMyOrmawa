@@ -8,10 +8,11 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Meeting {
+
     @SerializedName("id")
     private String id;
 
-    @SerializedName("nama")  // pastikan sama dengan JSON API
+    @SerializedName("nama")
     private String nama;
 
     @SerializedName("agenda")
@@ -29,6 +30,14 @@ public class Meeting {
     @SerializedName("lokasi")
     private String lokasi;
 
+    // ⬅️ Tambahkan ini
+    @SerializedName("created_at")
+    private String created_at;
+
+    @SerializedName("updated_at")
+    private String updated_at;
+
+
     // getter
     public String getId() { return id; }
     public String getNama() { return nama; }
@@ -37,6 +46,11 @@ public class Meeting {
     public String getJamMulai() { return jam_mulai; }
     public String getJamSelesai() { return jam_selesai; }
     public String getLokasi() { return lokasi; }
+
+    // ⬅️ getter baru
+    public String getCreatedAt() { return created_at; }
+    public String getUpdatedAt() { return updated_at; }
+
 
     public String getWaktu() {
         return jam_mulai + " - " + jam_selesai;
@@ -52,5 +66,4 @@ public class Meeting {
             return System.currentTimeMillis();
         }
     }
-
 }

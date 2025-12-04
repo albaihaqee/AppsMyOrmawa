@@ -14,7 +14,10 @@ import com.inovarka.myormawa.models.CalendarEvent;
 import com.inovarka.myormawa.models.ChangeEmailRequest;
 import com.inovarka.myormawa.models.ChangePasswordRequest;
 import com.inovarka.myormawa.models.Event;
+import com.inovarka.myormawa.models.FileUploadData;
 import com.inovarka.myormawa.models.ForgotPasswordRequest;
+import com.inovarka.myormawa.models.FormInfo;
+import com.inovarka.myormawa.models.FormSubmitRequest;
 import com.inovarka.myormawa.models.LoginRequest;
 import com.inovarka.myormawa.models.LoginResponse;
 import com.inovarka.myormawa.models.Meeting;
@@ -27,11 +30,15 @@ import com.inovarka.myormawa.models.VerifyOtpRequest;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface ApiService {
@@ -107,9 +114,34 @@ public interface ApiService {
     @GET("documents.php")
     Call<ApiResponseList<Document>> getDocumentsByOrmawa(@Query("id_ormawa") String idOrmawa);
 
-    Call<ApiResponseSingle<Event>> getEventById(@Query("id") String id);
-
     // CALENDAR ENDPOINTS
     @GET("calendar.php")
     Call<ApiResponseList<CalendarEvent>> getCalendarEvents();
+
+    // UPDATE ApiService.java - Add these methods:
+// FORM BUILDER ENDPOINTS
+    @GET("form_builder_api.php?action=get_forms")
+    Call<ApiResponseList<FormInfo>> getFormsByType(@Query("jenis_form") String jenisForm);
+
+    @GET("form_builder_api.php?action=get_form_detail")
+    Call<ApiResponseSingle<FormInfo>> getFormDetail(@Query("form_id") String formId);
+
+    @POST("form_builder_api.php?action=submit_form")
+    Call<ApiResponse> submitForm(@Body FormSubmitRequest request);
+
+    @GET("form_builder_api.php?action=get_user_submissions")
+    Call<ApiResponseList<FormInfo>> getUserSubmissions(
+            @Query("user_id") String userId,
+            @Query("jenis_form") String jenisForm);
+
+    @Multipart
+    @POST("form_builder_api.php?action=upload_file")
+    Call<ApiResponseSingle<FileUploadData>> uploadFile(
+            @Part("field_id") RequestBody fieldId,
+            @Part("form_id") RequestBody formId,
+            @Part("user_id") RequestBody userId,
+            @Part MultipartBody.Part file
+    );
+
+
 }

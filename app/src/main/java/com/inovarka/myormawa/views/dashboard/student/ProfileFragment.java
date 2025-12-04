@@ -23,7 +23,9 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.inovarka.myormawa.R;
+import com.inovarka.myormawa.utils.Constants;
 import com.inovarka.myormawa.views.auth.LoginActivity;
+import com.inovarka.myormawa.views.auth.RoleSelectionActivity;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -129,13 +131,16 @@ public class ProfileFragment extends Fragment {
     }
 
     private void performLogout() {
-        SharedPreferences.Editor editor = requireActivity().getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-        editor.putBoolean("is_logged_in", false);
+        // Reset shared preferences
+        SharedPreferences.Editor editor = requireActivity().getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).edit();
+        editor.putBoolean(Constants.KEY_IS_LOGGED_IN, false);
         editor.apply();
 
-        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        // Intent ke RoleSelectionActivity
+        Intent intent = new Intent(getActivity(), RoleSelectionActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         requireActivity().finish();
     }
+
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/txt_field_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Field Label"
+        android:textColor="#1A1A1A"
+        android:textSize="14sp"
+        android:fontFamily="@font/poppins_medium"
+        android:layout_marginBottom="8dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_choose_file"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pilih File"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="@color/primary_blue"
+        app:cornerRadius="8dp"
+        app:icon="@drawable/ic_upload"
+        app:iconTint="#FFFFFF"
+        android:fontFamily="@font/poppins_medium"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/txt_file_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="No file chosen"
+        android:textColor="#666666"
+        android:textSize="12sp"
+        android:fontFamily="@font/poppins_regular"
+        android:visibility="gone"/>
+</LinearLayout>
