@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="@font/poppins_semibold"
-            android:text="Detail &amp; Pendaftaran"
+            android:text="Detail Beasiswa"
             android:textColor="#1A1A1A"
             android:textSize="16sp" />
 
@@ -71,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="Beasiswa PPA 2025"
+                android:text="Beasiswa LPDP"
                 android:textColor="#1A1A1A"
                 android:textSize="16sp"
                 android:layout_marginBottom="12dp" />
@@ -95,7 +95,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_regular"
-                    android:text="Penyedia"
+                    android:text="Penyelenggara"
                     android:textColor="#666666"
                     android:textSize="12sp"
                     android:layout_marginEnd="8dp" />
@@ -106,43 +106,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/poppins_semibold"
-                    android:text="Kementrian Pendidikan"
-                    android:textColor="#1A1A1A"
-                    android:textSize="12sp"
-                    android:gravity="end" />
-            </LinearLayout>
-
-            <!-- Amount -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="#2C4EEF"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Nominal"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/txt_scholarship_detail_amount"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="Rp 4.000.000/semester"
+                    android:text="Lembaga Pengelola Dana Pendidikan (LPDP)"
                     android:textColor="#1A1A1A"
                     android:textSize="12sp"
                     android:gravity="end" />
@@ -154,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="16dp">
 
                 <ImageView
                     android:layout_width="16dp"
@@ -178,43 +142,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/poppins_semibold"
-                    android:text="30 November 2025"
-                    android:textColor="#1A1A1A"
-                    android:textSize="12sp"
-                    android:gravity="end" />
-            </LinearLayout>
-
-            <!-- Min GPA -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="#2C4EEF"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="IPK Minimal"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/txt_scholarship_detail_gpa"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="IPK min 3.0"
+                    android:text="25 Dec 2025"
                     android:textColor="#1A1A1A"
                     android:textSize="12sp"
                     android:gravity="end" />
@@ -243,7 +171,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
-                android:text="Beasiswa Peningkatan Prestasi Akademik untuk mahasiswa berprestasi dengan kondisi ekonomi kurang mampu."
+                android:text="Program beasiswa yang dikelola oleh pemerintah Indonesia untuk jenjang pendidikan S2 dan S3, baik dalam negeri maupun luar negeri."
                 android:textColor="#666666"
                 android:textSize="12sp"
                 android:lineSpacingExtra="2dp"

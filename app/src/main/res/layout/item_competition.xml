@@ -46,7 +46,7 @@
                 android:id="@+id/txt_competition_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hackathon AI Innovation"
+                android:text="Hackathon Generative AI"
                 android:textColor="#1A1A1A"
                 android:textSize="14sp"
                 android:fontFamily="@font/poppins_semibold"
@@ -59,72 +59,36 @@
                 android:id="@+id/txt_competition_organizer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="HMJ Teknologi Informasi"
+                android:text="BPSDM Kominfo"
                 android:textColor="#8C8C8C"
                 android:textSize="10sp"
                 android:fontFamily="@font/poppins_regular"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:layout_marginBottom="5dp"/>
+                android:layout_marginBottom="8dp"/>
 
             <!-- Registration Period -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="6dp">
+                android:gravity="center_vertical">
 
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="#8C8C8C"
+                    app:tint="#2C4EEF"
                     android:layout_marginEnd="4dp"/>
 
                 <TextView
                     android:id="@+id/txt_competition_period"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10-12 Januari 2026"
-                    android:textColor="#8C8C8C"
+                    android:text="03 Dec 2025 - 10 Dec 2025"
+                    android:textColor="#2C4EEF"
                     android:textSize="10sp"
-                    android:fontFamily="@font/poppins_regular"/>
-            </LinearLayout>
-
-            <!-- Prize & Deadline Badges -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <!-- Prize Badge -->
-                <TextView
-                    android:id="@+id/txt_competition_prize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Hadiah 15 Juta"
-                    android:textColor="#FFFFFF"
-                    android:textSize="9sp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:background="@drawable/shape_badge_prize"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"/>
-
-                <!-- Deadline Badge -->
-                <TextView
-                    android:id="@+id/txt_competition_deadline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="Maks 50 tim"
-                    android:textColor="#FFFFFF"
-                    android:textSize="9sp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:background="@drawable/shape_badge_prize"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"/>
+                    android:fontFamily="@font/poppins_medium"/>
             </LinearLayout>
         </LinearLayout>
 

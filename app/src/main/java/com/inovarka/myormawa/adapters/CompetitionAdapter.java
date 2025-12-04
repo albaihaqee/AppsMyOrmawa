@@ -1,5 +1,6 @@
 package com.inovarka.myormawa.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.models.Competition;
 
@@ -18,6 +20,7 @@ import java.util.List;
 
 public class CompetitionAdapter extends RecyclerView.Adapter<CompetitionAdapter.ViewHolder> {
 
+    private static final String TAG = "CompetitionAdapter";
     private List<Competition> competitionList;
     private OnItemClickListener listener;
 
@@ -62,8 +65,6 @@ public class CompetitionAdapter extends RecyclerView.Adapter<CompetitionAdapter.
         private final TextView txtTitle;
         private final TextView txtOrganizer;
         private final TextView txtPeriod;
-        private final TextView txtPrize;
-        private final TextView txtDeadline;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -71,29 +72,38 @@ public class CompetitionAdapter extends RecyclerView.Adapter<CompetitionAdapter.
             txtTitle = itemView.findViewById(R.id.txt_competition_title);
             txtOrganizer = itemView.findViewById(R.id.txt_competition_organizer);
             txtPeriod = itemView.findViewById(R.id.txt_competition_period);
-            txtPrize = itemView.findViewById(R.id.txt_competition_prize);
-            txtDeadline = itemView.findViewById(R.id.txt_competition_deadline);
         }
 
         public void bind(Competition competition, OnItemClickListener listener) {
             txtTitle.setText(competition.getTitle());
             txtOrganizer.setText(competition.getOrganizer());
             txtPeriod.setText(competition.getRegistrationPeriod());
-            txtPrize.setText(competition.getPrize());
-            txtDeadline.setText(competition.getTeamSizeText());
 
-            // Load poster image with Glide
-            if (competition.getPosterUrl() != null && !competition.getPosterUrl().isEmpty()) {
+            // Load poster dengan Glide
+            String posterUrl = competition.getPosterUrl();
+
+            Log.d(TAG, "Loading poster for: " + competition.getTitle());
+            Log.d(TAG, "Poster URL: " + posterUrl);
+
+            if (posterUrl != null && !posterUrl.isEmpty()) {
+                Log.d(TAG, "Attempting to load poster from: " + posterUrl);
+
                 Glide.with(itemView.getContext())
-                        .load(competition.getPosterUrl())
-                        .centerCrop()
+                        .load(posterUrl)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE) // Disable cache untuk testing
+                        .skipMemoryCache(true) // Skip memory cache
                         .placeholder(R.drawable.ic_home)
                         .error(R.drawable.ic_home)
+                        .centerCrop()
                         .into(imgPoster);
+
+                Log.d(TAG, "Glide loading initiated for: " + posterUrl);
             } else {
+                Log.w(TAG, "Poster URL is null or empty for: " + competition.getTitle());
                 imgPoster.setImageResource(R.drawable.ic_home);
             }
 
+            // Click listener
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onItemClick(competition);
