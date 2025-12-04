@@ -1,11 +1,15 @@
 package com.inovarka.myormawa.views.dashboard.student;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -13,24 +17,39 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.inovarka.myormawa.R;
-import com.inovarka.myormawa.adapters.OprecAdapter;
-import com.inovarka.myormawa.models.Oprec;
+import com.inovarka.myormawa.adapters.FormListAdapter;
+import com.inovarka.myormawa.models.ApiResponseList;
+import com.inovarka.myormawa.models.FormInfo;
+import com.inovarka.myormawa.network.ApiClient;
+import com.inovarka.myormawa.network.ApiService;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class OprecActivity extends AppCompatActivity {
 
-    private RecyclerView rvOprec;
-    private OprecAdapter adapter;
-    private ChipGroup chipGroup;
-    private List<Oprec> allOprec;
-    private List<Oprec> filteredOprec;
+    private static final String TAG = "OprecActivity";
 
-    private String currentType = "Pengurus";
+    private RecyclerView rvOprec;
+    private FormListAdapter adapter;
+    private ChipGroup chipGroup;
+    private ProgressBar progressBar;
+    private View layoutEmpty;
+    private TextView txtEmpty;
+
+    private List<FormInfo> allForms;
+    private List<FormInfo> filteredForms;
+
+    private String currentType = "anggota"; // anggota or event
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +60,7 @@ public class OprecActivity extends AppCompatActivity {
         initViews();
         setupRecyclerView();
         setupChips();
-        loadDummyData();
+        loadForms();
     }
 
     private void setStatusBar() {
@@ -55,10 +74,17 @@ public class OprecActivity extends AppCompatActivity {
 
         rvOprec = findViewById(R.id.rv_oprec);
         chipGroup = findViewById(R.id.chip_group_oprec);
+        progressBar = findViewById(R.id.progress_bar);
+        layoutEmpty = findViewById(R.id.layout_empty_state);
+        txtEmpty = findViewById(R.id.txt_empty_state);
+
+        apiService = ApiClient.getClient().create(ApiService.class);
+        allForms = new ArrayList<>();
+        filteredForms = new ArrayList<>();
     }
 
     private void setupRecyclerView() {
-        adapter = new OprecAdapter();
+        adapter = new FormListAdapter();
         rvOprec.setLayoutManager(new LinearLayoutManager(this));
         rvOprec.setAdapter(adapter);
 
@@ -73,27 +99,55 @@ public class OprecActivity extends AppCompatActivity {
                 String type = selectedChip.getText().toString();
 
                 if (type.equals("Oprec Pengurus")) {
-                    filterOprec("Pengurus");
+                    currentType = "anggota";
                 } else {
-                    filterOprec("Kepanitiaan");
+                    currentType = "event";
                 }
+
+                loadForms();
             }
         });
     }
 
-    private void filterOprec(String type) {
-        currentType = type;
-        filteredOprec = new ArrayList<>();
+    private void loadForms() {
+        showLoading(true);
 
-        for (Oprec oprec : allOprec) {
-            if (oprec.getType().equals(type)) {
-                filteredOprec.add(oprec);
+        apiService.getFormsByType(currentType).enqueue(new Callback<ApiResponseList<FormInfo>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<FormInfo>> call,
+                                   Response<ApiResponseList<FormInfo>> response) {
+                showLoading(false);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponseList<FormInfo> apiResponse = response.body();
+
+                    if (apiResponse.isSuccess() && apiResponse.getData() != null) {
+                        allForms = apiResponse.getData();
+                        filteredForms = new ArrayList<>(allForms);
+                        adapter.setFormList(filteredForms);
+
+                        updateEmptyState();
+                    } else {
+                        showError(apiResponse.getMessage());
+                        updateEmptyState();
+                    }
+                } else {
+                    showError("Gagal memuat data");
+                    updateEmptyState();
+                }
             }
-        }
-        adapter.setOprecList(filteredOprec);
+
+            @Override
+            public void onFailure(Call<ApiResponseList<FormInfo>> call, Throwable t) {
+                showLoading(false);
+                showError("Koneksi gagal: " + t.getMessage());
+                Log.e(TAG, "Error loading forms", t);
+                updateEmptyState();
+            }
+        });
     }
 
-    private void showOprecDetailDialog(Oprec oprec) {
+    private void showOprecDetailDialog(FormInfo formInfo) {
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_oprec_detail, null);
 
@@ -103,120 +157,54 @@ public class OprecActivity extends AppCompatActivity {
         TextView txtDeadline = view.findViewById(R.id.txt_oprec_detail_deadline);
         TextView txtParticipants = view.findViewById(R.id.txt_oprec_detail_participants);
         TextView txtDescription = view.findViewById(R.id.txt_oprec_detail_description);
-        View btnRegister = view.findViewById(R.id.btn_register_now);
+        MaterialButton btnRegister = view.findViewById(R.id.btn_register_now);
 
-        txtTitle.setText(oprec.getTitle());
-        txtOrganization.setText(oprec.getOrganization());
-        txtDeadline.setText(oprec.getDeadline());
-        txtParticipants.setText(oprec.getParticipantsText());
-        txtDescription.setText(oprec.getDescription());
+        txtTitle.setText(formInfo.getJudul());
+        txtOrganization.setText(formInfo.getNamaOrmawa());
+        txtDeadline.setText("Dibuat: " + formInfo.getCreatedAt());
+        txtParticipants.setText(formInfo.getParticipantsText());
+        txtDescription.setText(formInfo.getDeskripsi());
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
+
         btnRegister.setOnClickListener(v -> {
-            // TODO: Navigate to form builder
             dialog.dismiss();
+            navigateToForm(formInfo);
         });
 
         dialog.setContentView(view);
         dialog.show();
     }
 
-    private void loadDummyData() {
-        allOprec = new ArrayList<>();
+    private void navigateToForm(FormInfo formInfo) {
+        Intent intent = new Intent(this, FormFillActivity.class);
+        intent.putExtra(FormFillActivity.EXTRA_FORM_ID, formInfo.getId());
+        intent.putExtra(FormFillActivity.EXTRA_FORM_TYPE, formInfo.getJenisForm());
+        startActivity(intent);
+    }
 
-        // Pengurus
-        allOprec.add(new Oprec(
-                "1",
-                "Open Recruitment HMJ-TI",
-                "Himpunan Mahasiswa Jurusan Teknologi Informasi",
-                "25 November 2025",
-                16,
-                100,
-                "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=533&fit=crop",
-                "Pengurus",
-                "Open Recruitment HMJ-TI dibuka untuk mahasiswa yang ingin bergabung dan berkontribusi dalam kepengurusan.",
-                true
-        ));
+    private void showLoading(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        rvOprec.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
 
-        allOprec.add(new Oprec(
-                "2",
-                "Open Recruitment UKM-O",
-                "UKM Kegiatan Mahasiswa Olahraga",
-                "30 November 2025",
-                25,
-                80,
-                "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=533&fit=crop",
-                "Pengurus",
-                "Bergabunglah dengan UKM-O untuk mengembangkan bakat olahraga.",
-                true
-        ));
+    private void updateEmptyState() {
+        if (filteredForms.isEmpty()) {
+            layoutEmpty.setVisibility(View.VISIBLE);
+            rvOprec.setVisibility(View.GONE);
 
-        allOprec.add(new Oprec(
-                "3",
-                "Open Recruitment UKM PSM",
-                "UKM Kegiatan Mahasiswa Paduan Suara",
-                "20 November 2025",
-                30,
-                50,
-                "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=400&h=533&fit=crop",
-                "Pengurus",
-                "UKM PSM membuka pendaftaran anggota baru.",
-                true
-        ));
+            if (currentType.equals("anggota")) {
+                txtEmpty.setText("Belum ada pendaftaran anggota tersedia");
+            } else {
+                txtEmpty.setText("Belum ada pendaftaran event tersedia");
+            }
+        } else {
+            layoutEmpty.setVisibility(View.GONE);
+            rvOprec.setVisibility(View.VISIBLE);
+        }
+    }
 
-        // Kepanitiaan
-        allOprec.add(new Oprec(
-                "4",
-                "Open Recruitment Panitia AOM 11.0",
-                "Art of Manajement 11.0",
-                "20 November 2025",
-                40,
-                100,
-                "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=533&fit=crop",
-                "Kepanitiaan",
-                "Bergabunglah menjadi panitia AOM 11.0.",
-                true
-        ));
-
-        allOprec.add(new Oprec(
-                "5",
-                "Open Recruitment Panitia Inagurasi",
-                "HMJ Politeknik Negeri Jember",
-                "15 November 2025",
-                35,
-                90,
-                "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=533&fit=crop",
-                "Kepanitiaan",
-                "Panitia Inagurasi membuka pendaftaran.",
-                true
-        ));
-
-        allOprec.add(new Oprec(
-                "6",
-                "Open Recruitment Panitia PKKMB GEMPITA 2025",
-                "PKKMB GEMPITA 2025",
-                "10 November 2025",
-                45,
-                100,
-                "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=400&h=533&fit=crop",
-                "Kepanitiaan",
-                "Menjadi bagian dari panitia PKKMB GEMPITA 2025.",
-                true
-        ));
-
-        allOprec.add(new Oprec(
-                "7",
-                "Open Recruitment Panitia AITEC 7",
-                "Annual Information Technology Competition 7",
-                "18 November 2025",
-                28,
-                70,
-                "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=533&fit=crop",
-                "Kepanitiaan",
-                "Bergabung dengan panitia AITEC 7.",
-                true
-        ));
-
-        filterOprec("Pengurus");
+    private void showError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

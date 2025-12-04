@@ -48,7 +48,7 @@
                 android:layout_height="24dp" />
         </LinearLayout>
 
-        <!-- Chip Group - Rata Tengah dengan Lebar Sama -->
+        <!-- Chip Group -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -97,6 +97,17 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- ProgressBar (TAMBAHAN) -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"/>
+
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_oprec"
@@ -105,4 +116,35 @@
         android:background="#F8F8F8"
         android:paddingTop="12dp"
         android:clipToPadding="false"/>
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/layout_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/txt_empty_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Belum Ada Rekruitmen"
+            android:textColor="#757575"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_medium"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rekruitmen akan segera hadir!"
+            android:textColor="#9E9E9E"
+            android:textSize="13sp"
+            android:fontFamily="@font/poppins_regular"
+            android:gravity="center"/>
+    </LinearLayout>
+
 </LinearLayout>

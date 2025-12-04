@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,7 +26,6 @@ import com.inovarka.myormawa.network.ApiService;
 import com.inovarka.myormawa.utils.Constants;
 import com.inovarka.myormawa.utils.SessionManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -36,7 +36,11 @@ public class HomeMemberFragment extends Fragment {
 
     private TextView txtUserName;
     private LinearLayout containerAnnouncements;
-    private List<AnnouncementMeeting> announcementList;
+    private FrameLayout btnNotification;
+    private View badgeNotif;
+
+    private SharedPreferences prefs;
+    private static final String KEY_LAST_SEEN = "last_seen_count";
 
     @Nullable
     @Override
@@ -49,10 +53,13 @@ public class HomeMemberFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         setupStatusBar();
+        prefs = requireContext().getSharedPreferences("notif_pref", getActivity().MODE_PRIVATE);
+
         initViews(view);
         loadUserData();
         setupClickListeners(view);
-        loadAnnouncements(); // langsung load dari API
+        loadAnnouncements();
+        loadNotificationBadge();
     }
 
     private void setupStatusBar() {
@@ -69,28 +76,42 @@ public class HomeMemberFragment extends Fragment {
     private void initViews(View view) {
         txtUserName = view.findViewById(R.id.txt_user_name);
         containerAnnouncements = view.findViewById(R.id.container_announcements);
+        btnNotification = view.findViewById(R.id.btn_notification);
+        badgeNotif = btnNotification.findViewById(R.id.badge_notification);
     }
 
     private void loadUserData() {
         SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, getActivity().MODE_PRIVATE);
         String fullName = prefs.getString(Constants.KEY_FULL_NAME, "User");
-
-        if (txtUserName != null) {
-            txtUserName.setText(fullName);
-        }
+        txtUserName.setText(fullName);
     }
 
     private void setupClickListeners(View view) {
-        view.findViewById(R.id.btn_anggota).setOnClickListener(v -> startActivity(new Intent(getActivity(), MemberActivity.class)));
-        view.findViewById(R.id.btn_absensi).setOnClickListener(v -> startActivity(new Intent(getActivity(), PresenceHistoryActivity.class)));
-        view.findViewById(R.id.btn_kegiatan).setOnClickListener(v -> startActivity(new Intent(getActivity(), MeetingActivity.class)));
-        view.findViewById(R.id.btn_dokumen).setOnClickListener(v -> startActivity(new Intent(getActivity(), DocumentActivity.class)));
-        view.findViewById(R.id.btn_notification).setOnClickListener(v -> startActivity(new Intent(getActivity(), NotificationMemberActivity.class)));
-        view.findViewById(R.id.txt_see_all_announcements).setOnClickListener(v -> startActivity(new Intent(getActivity(), MeetingActivity.class)));
+        view.findViewById(R.id.btn_anggota).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), MemberActivity.class)));
+
+        view.findViewById(R.id.btn_absensi).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), PresenceHistoryActivity.class)));
+
+        view.findViewById(R.id.btn_kegiatan).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), MeetingActivity.class)));
+
+        view.findViewById(R.id.btn_dokumen).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), DocumentActivity.class)));
+
+        // ========= FIXED: update lastSeen saat buka notifikasi ==========
+        btnNotification.setOnClickListener(v -> {
+            badgeNotif.setVisibility(View.GONE);
+            updateLastSeenCount();
+            startActivity(new Intent(getActivity(), NotificationMemberActivity.class));
+        });
+
+        view.findViewById(R.id.txt_see_all_announcements)
+                .setOnClickListener(v -> startActivity(new Intent(getActivity(), MeetingActivity.class)));
     }
 
     private void loadAnnouncements() {
-        containerAnnouncements.removeAllViews(); // clear dulu
+        containerAnnouncements.removeAllViews();
 
         SessionManager sessionManager = new SessionManager(requireContext());
         String ormawaId = sessionManager.getIdOrmawa();
@@ -99,114 +120,106 @@ public class HomeMemberFragment extends Fragment {
         api.getKegiatanByOrmawa(ormawaId).enqueue(new Callback<ApiResponseList<Meeting>>() {
             @Override
             public void onResponse(Call<ApiResponseList<Meeting>> call, Response<ApiResponseList<Meeting>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    List<Meeting> meetings = response.body().getData();
+                if (!response.isSuccessful() || response.body() == null) {
+                    showEmptyState();
+                    return;
+                }
 
-                    if (meetings.isEmpty()) {
-                        addEmptyStateAnnouncement();
-                        return;
-                    }
+                List<Meeting> list = response.body().getData();
+                if (list == null || list.isEmpty()) {
+                    showEmptyState();
+                    return;
+                }
 
-                    announcementList = new ArrayList<>();
-                    int maxDisplay = Math.min(meetings.size(), 3);
-                    for (int i = 0; i < maxDisplay; i++) {
-                        Meeting m = meetings.get(i);
-                        announcementList.add(new AnnouncementMeeting(
-                                m.getId(),
-                                "INFO",
-                                m.getNama(),
-                                m.getTanggal() + ", " + m.getWaktu(),
-                                m.getLokasi(),
-                                m.getAgenda(),
-                                false
-                        ));
-                    }
-                    displayAnnouncements();
-                } else {
-                    addEmptyStateAnnouncement();
+                int max = Math.min(3, list.size());
+                for (int i = 0; i < max; i++) {
+                    addAnnouncementItem(list.get(i));
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseList<Meeting>> call, Throwable t) {
-                addEmptyStateAnnouncement();
+                showEmptyState();
             }
         });
     }
 
-    private void addEmptyStateAnnouncement() {
+    private void showEmptyState() {
         containerAnnouncements.removeAllViews();
 
-        TextView emptyText = new TextView(getContext());
-        emptyText.setText("Belum ada pengumuman internal");
-        emptyText.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondary));
-        emptyText.setTextSize(14);
-        emptyText.setPadding(0, 32, 0, 32);
-        emptyText.setGravity(android.view.Gravity.CENTER);
-        emptyText.setTypeface(getResources().getFont(R.font.poppins_regular));
+        TextView tv = new TextView(getContext());
+        tv.setText("Belum ada pengumuman internal");
+        tv.setTextSize(14);
+        tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondary));
+        tv.setPadding(0, 32, 0, 32);
+        tv.setGravity(android.view.Gravity.CENTER);
 
-        containerAnnouncements.addView(emptyText);
+        containerAnnouncements.addView(tv);
     }
 
-    private void displayAnnouncements() {
-        containerAnnouncements.removeAllViews();
+    private void addAnnouncementItem(Meeting m) {
+        View item = LayoutInflater.from(getContext())
+                .inflate(R.layout.item_announcement_meeting, containerAnnouncements, false);
 
-        int maxDisplay = Math.min(announcementList.size(), 3);
-        for (int i = 0; i < maxDisplay; i++) {
-            AnnouncementMeeting announcement = announcementList.get(i);
-            View itemView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.item_announcement_meeting, containerAnnouncements, false);
+        ((TextView) item.findViewById(R.id.tv_announcement_status)).setText("INFO");
+        ((TextView) item.findViewById(R.id.tv_announcement_title)).setText(m.getNama());
+        ((TextView) item.findViewById(R.id.tv_announcement_date))
+                .setText(m.getTanggal() + " • " + m.getJamMulai());
+        ((TextView) item.findViewById(R.id.tv_announcement_location)).setText(m.getLokasi());
+        ((TextView) item.findViewById(R.id.tv_announcement_agenda))
+                .setText("Agenda: " + m.getAgenda());
 
-            TextView tvStatus = itemView.findViewById(R.id.tv_announcement_status);
-            TextView tvTitle = itemView.findViewById(R.id.tv_announcement_title);
-            TextView tvDate = itemView.findViewById(R.id.tv_announcement_date);
-            TextView tvLocation = itemView.findViewById(R.id.tv_announcement_location);
-            TextView tvAgenda = itemView.findViewById(R.id.tv_announcement_agenda);
-
-            tvStatus.setText(announcement.getStatus());
-            tvTitle.setText(announcement.getTitle());
-            tvDate.setText(announcement.getDateTime());
-            tvLocation.setText(announcement.getLocation());
-            tvAgenda.setText("Agenda: " + announcement.getAgenda());
-
-            // Set color based on importance
-            tvStatus.setTextColor(announcement.isImportant() ?
-                    getResources().getColor(android.R.color.holo_red_dark) :
-                    getResources().getColor(R.color.blue_500));
-
-            itemView.setOnClickListener(v -> startActivity(new Intent(getActivity(), MeetingActivity.class)));
-
-            containerAnnouncements.addView(itemView);
-        }
+        containerAnnouncements.addView(item);
     }
 
-    // Inner class untuk model announcement
-    private static class AnnouncementMeeting {
-        private final String id;
-        private final String status;
-        private final String title;
-        private final String dateTime;
-        private final String location;
-        private final String agenda;
-        private final boolean isImportant;
+    // =====================================================
+    //            NOTIFICATION BADGE HANDLING
+    // =====================================================
+    private void loadNotificationBadge() {
+        SessionManager sessionManager = new SessionManager(requireContext());
+        String ormawaId = sessionManager.getIdOrmawa();
 
-        public AnnouncementMeeting(String id, String status, String title, String dateTime,
-                                   String location, String agenda, boolean isImportant) {
-            this.id = id;
-            this.status = status;
-            this.title = title;
-            this.dateTime = dateTime;
-            this.location = location;
-            this.agenda = agenda;
-            this.isImportant = isImportant;
-        }
+        ApiService api = ApiClient.getApiService();
+        api.getKegiatanByOrmawa(ormawaId).enqueue(new Callback<ApiResponseList<Meeting>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<Meeting>> call, Response<ApiResponseList<Meeting>> resp) {
+                if (!resp.isSuccessful() || resp.body() == null) return;
 
-        public String getId() { return id; }
-        public String getStatus() { return status; }
-        public String getTitle() { return title; }
-        public String getDateTime() { return dateTime; }
-        public String getLocation() { return location; }
-        public String getAgenda() { return agenda; }
-        public boolean isImportant() { return isImportant; }
+                List<Meeting> list = resp.body().getData();
+                if (list == null) return;
+
+                int lastSeen = prefs.getInt(KEY_LAST_SEEN, 0);
+                int current = list.size();
+
+                if (current > lastSeen) {
+                    badgeNotif.setVisibility(View.VISIBLE);
+                } else {
+                    badgeNotif.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<Meeting>> call, Throwable t) {}
+        });
+    }
+
+    // ============= FIX: update last seen saat buka notif ============
+    private void updateLastSeenCount() {
+        SessionManager sessionManager = new SessionManager(requireContext());
+        String ormawaId = sessionManager.getIdOrmawa();
+
+        ApiService api = ApiClient.getApiService();
+        api.getKegiatanByOrmawa(ormawaId).enqueue(new Callback<ApiResponseList<Meeting>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<Meeting>> call, Response<ApiResponseList<Meeting>> resp) {
+                if (resp.isSuccessful() && resp.body() != null && resp.body().getData() != null) {
+                    int current = resp.body().getData().size();
+                    prefs.edit().putInt(KEY_LAST_SEEN, current).apply();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<Meeting>> call, Throwable t) {}
+        });
     }
 }
