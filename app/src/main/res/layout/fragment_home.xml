@@ -63,12 +63,15 @@
                     app:tint="#8C8C8C" />
 
                 <View
+                    android:id="@+id/view_badge_notification"
                     android:layout_width="10dp"
                     android:layout_height="10dp"
                     android:layout_gravity="end|top"
                     android:layout_marginTop="12dp"
                     android:layout_marginEnd="12dp"
+                    android:visibility="gone"
                     android:background="@drawable/shape_badge_notification" />
+
             </FrameLayout>
         </LinearLayout>
 

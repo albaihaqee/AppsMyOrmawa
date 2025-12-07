@@ -16,4 +16,8 @@
         public static final String KEY_ANGKATAN = "angkatan";
         public static final String KEY_LEVEL = "level";
         public static final String KEY_ID_ORMAWA = "id_ormawa";
+        public static final String KEY_LAST_NOTIFICATION_COUNT = "last_notification_count";
+        public static final String KEY_BADGE_SHOWN = "badge_shown";
+
+
     }

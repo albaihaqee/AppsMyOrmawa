@@ -18,9 +18,11 @@ import com.inovarka.myormawa.models.ApiResponseList;
 import com.inovarka.myormawa.models.Competition;
 import com.inovarka.myormawa.models.Event;
 import com.inovarka.myormawa.models.Notification;
+import com.inovarka.myormawa.models.OprecStatus;
 import com.inovarka.myormawa.models.Scholarship;
 import com.inovarka.myormawa.network.ApiClient;
 import com.inovarka.myormawa.network.ApiService;
+import com.inovarka.myormawa.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +41,11 @@ public class NotificationActivity extends AppCompatActivity {
     private List<Notification> filteredNotifications = new ArrayList<>();
 
     private ApiService apiService;
-    private String currentCategory = "Semua";
+    private String currentCategory = "Semua Notifikasi";
+
+    // API COUNTER
+    private int apiLoaded = 0;
+    private final int totalApi = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +58,14 @@ public class NotificationActivity extends AppCompatActivity {
         initViews();
         setupRecyclerView();
         setupChips();
+
+        allNotifications.clear();
+        filteredNotifications.clear();
+
         loadCompetitionNotifications();
         loadScholarshipNotifications();
-        loadEventNotifications();// <-- Tambahkan ini
+        loadEventNotifications();
+        loadOprecNotifications();
     }
 
     private void setStatusBar() {
@@ -95,7 +106,7 @@ public class NotificationActivity extends AppCompatActivity {
         currentCategory = category;
         filteredNotifications.clear();
 
-        if (category.equals("Semua")) {
+        if (category.equals("Semua Notifikasi")) {
             filteredNotifications.addAll(allNotifications);
         } else {
             for (Notification notif : allNotifications) {
@@ -108,143 +119,174 @@ public class NotificationActivity extends AppCompatActivity {
         adapter.setNotifications(filteredNotifications);
     }
 
-    // ============================================
-    //   LOAD NOTIFICATION FROM COMPETITION API
-    // ============================================
-    private void loadCompetitionNotifications() {
+    // =====================================================================
+    //                               API HANDLER
+    // =====================================================================
 
+    private void onApiFinished() {
+        apiLoaded++;
+
+        if (apiLoaded == totalApi) {
+
+            // Simpan jumlah notifikasi terbaru
+            getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE)
+                    .edit()
+                    .putInt(Constants.KEY_LAST_NOTIFICATION_COUNT, allNotifications.size())
+                    .putBoolean(Constants.KEY_BADGE_SHOWN, false) // badge hilang setelah halaman dibuka
+                    .apply();
+
+            filterNotifications(currentCategory);
+        }
+    }
+
+
+    private void loadCompetitionNotifications() {
         apiService.getAllCompetitions().enqueue(new Callback<ApiResponseList<Competition>>() {
             @Override
             public void onResponse(Call<ApiResponseList<Competition>> call,
                                    Response<ApiResponseList<Competition>> response) {
 
-                if (response.body() == null || !response.body().isSuccess()) {
-                    Toast.makeText(NotificationActivity.this,
-                            "Gagal memuat notifikasi kompetisi",
-                            Toast.LENGTH_SHORT).show();
-                    return;
+                if (response.body() != null && response.body().isSuccess()) {
+                    for (Competition c : response.body().getData()) {
+
+                        Notification notif = new Notification(
+                                c.getId(),
+                                c.getTitle(),
+                                c.getDescription(),
+                                "Kompetisi",
+                                c.getCreatedAt(),
+                                false
+                        );
+
+                        notif.setTime(timeAgo(c.getCreatedAt()));
+                        allNotifications.add(notif);
+                    }
                 }
 
-                List<Competition> competitions = response.body().getData();
-                allNotifications.clear();
-
-                for (Competition c : competitions) {
-
-                    Notification notif = new Notification(
-                            c.getId(),
-                            c.getTitle(),
-                            c.getDescription(),
-                            "Kompetisi",
-                            c.getCreatedAt(),
-                            false
-                    );
-
-                    notif.setTime(timeAgo(c.getCreatedAt()));
-                    allNotifications.add(notif);
-                }
-
-                filterNotifications(currentCategory);
+                onApiFinished();
             }
 
             @Override
             public void onFailure(Call<ApiResponseList<Competition>> call, Throwable t) {
-                Toast.makeText(NotificationActivity.this,
-                        "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                onApiFinished();
             }
         });
     }
 
     private void loadScholarshipNotifications() {
-
         apiService.getAllScholarships().enqueue(new Callback<ApiResponseList<Scholarship>>() {
             @Override
             public void onResponse(Call<ApiResponseList<Scholarship>> call,
                                    Response<ApiResponseList<Scholarship>> response) {
 
-                if (response.body() == null || !response.body().isSuccess()) {
-                    Toast.makeText(NotificationActivity.this,
-                            "Gagal memuat notifikasi beasiswa",
-                            Toast.LENGTH_SHORT).show();
-                    return;
+                if (response.body() != null && response.body().isSuccess()) {
+                    for (Scholarship s : response.body().getData()) {
+
+                        Notification notif = Notification.fromScholarship(
+                                s.getId(),
+                                s.getTitle(),
+                                s.getProvider(),
+                                s.getDescription(),
+                                s.getCreatedAt()
+                        );
+
+                        notif.setTime(timeAgo(s.getCreatedAt()));
+                        allNotifications.add(notif);
+                    }
                 }
 
-                List<Scholarship> list = response.body().getData();
-
-                for (Scholarship s : list) {
-
-                    Notification notif = Notification.fromScholarship(
-                            s.getId(),
-                            s.getTitle(),
-                            s.getProvider(),
-                            s.getDescription(),
-                            s.getCreatedAt()
-                    );
-
-                    notif.setTime(timeAgo(s.getCreatedAt()));
-                    allNotifications.add(notif);
-                }
-
-                // Refresh berdasar filter chip
-                filterNotifications(currentCategory);
+                onApiFinished();
             }
 
             @Override
             public void onFailure(Call<ApiResponseList<Scholarship>> call, Throwable t) {
-                Toast.makeText(NotificationActivity.this,
-                        "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                onApiFinished();
             }
         });
     }
 
     private void loadEventNotifications() {
-
         apiService.getAllEvents().enqueue(new Callback<ApiResponseList<Event>>() {
             @Override
             public void onResponse(Call<ApiResponseList<Event>> call,
                                    Response<ApiResponseList<Event>> response) {
 
-                if (response.body() == null || !response.body().isSuccess()) {
-                    Toast.makeText(NotificationActivity.this,
-                            "Gagal memuat notifikasi event",
-                            Toast.LENGTH_SHORT).show();
-                    return;
+                if (response.body() != null && response.body().isSuccess()) {
+                    for (Event e : response.body().getData()) {
+
+                        Notification notif = new Notification(
+                                e.getId(),
+                                e.getTitle(),
+                                e.getDescription(),
+                                "Event",
+                                e.getCreatedAt(),
+                                false
+                        );
+
+                        notif.setTime(timeAgo(e.getCreatedAt()));
+                        allNotifications.add(notif);
+                    }
                 }
 
-                List<Event> list = response.body().getData();
-
-                for (Event e : list) {
-
-                    Notification notif = new Notification(
-                            e.getId(),
-                            e.getTitle(),
-                            e.getDescription(),
-                            "Event",
-                            e.getCreatedAt(),
-                            false
-                    );
-
-                    notif.setTime(timeAgo(e.getCreatedAt()));
-                    allNotifications.add(notif);
-                }
-
-                // Refresh berdasar filter chip
-                filterNotifications(currentCategory);
+                onApiFinished();
             }
 
             @Override
             public void onFailure(Call<ApiResponseList<Event>> call, Throwable t) {
-                Toast.makeText(NotificationActivity.this,
-                        "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                onApiFinished();
             }
         });
     }
 
+    private void loadOprecNotifications() {
+        String userId = getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE)
+                .getString(Constants.KEY_USER_ID, null);
 
+        if (userId == null || userId.equals("0")) {
+            Toast.makeText(this, "User ID tidak ditemukan, silakan login ulang.", Toast.LENGTH_SHORT).show();
+            onApiFinished();
+            return;
+        }
 
+        apiService.getOprecStatus(userId).enqueue(new Callback<ApiResponseList<OprecStatus>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<OprecStatus>> call,
+                                   Response<ApiResponseList<OprecStatus>> response) {
+
+                if (response.body() != null && response.body().isSuccess()) {
+                    for (OprecStatus op : response.body().getData()) {
+
+                        Notification notif = new Notification(
+                                op.getId(),
+                                op.getJudul(),
+                                "Status pendaftaran: " + op.getStatus(),
+                                "Info",
+                                op.getCreated_at(),
+                                false,
+                                op.getStatus()
+                        );
+
+                        notif.setTime(timeAgo(op.getCreated_at()));
+                        allNotifications.add(notif);
+                    }
+                }
+
+                onApiFinished();
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<OprecStatus>> call, Throwable t) {
+                onApiFinished();
+            }
+        });
+    }
+
+    // =====================================================================
+    //                               TIME AGO
+    // =====================================================================
 
     private String timeAgo(String createdAt) {
         try {
-            // format tanggal dari API: "2025-01-05 12:00:00"
             java.text.SimpleDateFormat sdf =
                     new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
 
@@ -262,7 +304,6 @@ public class NotificationActivity extends AppCompatActivity {
             if (days == 1) return "Kemarin";
             if (days < 7) return days + " hari lalu";
 
-            // Kalau lebih dari seminggu → tampilkan tanggal asli
             java.text.SimpleDateFormat output =
                     new java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault());
             return output.format(sdf.parse(createdAt));
@@ -271,5 +312,4 @@ public class NotificationActivity extends AppCompatActivity {
             return createdAt;
         }
     }
-
 }

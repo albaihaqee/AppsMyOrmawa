@@ -41,6 +41,21 @@
                 android:maxLines="1"
                 android:ellipsize="end"/>
 
+            <!-- BADGE STATUS BARU -->
+            <TextView
+                android:id="@+id/txt_notification_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Pending"
+                android:textSize="10sp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/bg_status_badge"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/poppins_semibold"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/txt_notification_message"
                 android:layout_width="match_parent"
