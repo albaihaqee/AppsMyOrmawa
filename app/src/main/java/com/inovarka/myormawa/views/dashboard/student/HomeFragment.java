@@ -27,13 +27,18 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.adapters.BannerAdapter;
-import com.inovarka.myormawa.models.Banner;
-import com.inovarka.myormawa.models.Event;
+import com.inovarka.myormawa.models.*;
+import com.inovarka.myormawa.network.ApiClient;
+import com.inovarka.myormawa.network.ApiService;
 import com.inovarka.myormawa.repositories.EventRepository;
 import com.inovarka.myormawa.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -49,22 +54,39 @@ public class HomeFragment extends Fragment {
     private LinearLayout eventsContainer;
     private TextView txtSeeAllEvents;
     private TextView txtUserName;
+    private View badgeNotification;
 
     private BannerAdapter bannerAdapter;
     private List<Banner> bannerList;
     private Handler sliderHandler;
     private int currentPage = 0;
 
+    private final List<Notification> allNotifications = new ArrayList<>();
+
+    private final Runnable autoSlideRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (bannerList != null && !bannerList.isEmpty()) {
+                currentPage++;
+                if (currentPage >= bannerList.size()) currentPage = 0;
+                bannerViewPager.setCurrentItem(currentPage, true);
+                sliderHandler.postDelayed(this, AUTO_SLIDE_DELAY);
+            }
+        }
+    };
+
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         setupStatusBar();
         initViews(view);
         loadUserData();
@@ -78,7 +100,6 @@ public class HomeFragment extends Fragment {
             Window window = getActivity().getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_surfaceVariant));
-
             WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(window, window.getDecorView());
             controller.setAppearanceLightStatusBars(false);
         }
@@ -90,168 +111,25 @@ public class HomeFragment extends Fragment {
         eventsContainer = view.findViewById(R.id.container_popular_events);
         txtSeeAllEvents = view.findViewById(R.id.txt_see_all_events);
         txtUserName = view.findViewById(R.id.txt_user_name);
+        badgeNotification = view.findViewById(R.id.view_badge_notification);
         sliderHandler = new Handler(Looper.getMainLooper());
     }
 
     private void loadUserData() {
         SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE);
-        String fullName = prefs.getString(Constants.KEY_FULL_NAME, "User");
-
-        if (txtUserName != null) {
-            txtUserName.setText(fullName);
-        }
+        txtUserName.setText(prefs.getString(Constants.KEY_FULL_NAME, "User"));
     }
 
+    // ===================== BANNER =====================
     private void setupBanner() {
         initBannerList();
-
         bannerAdapter = new BannerAdapter(bannerList);
         bannerViewPager.setAdapter(bannerAdapter);
-
         bannerAdapter.setOnBannerClickListener(this::handleBannerClick);
-
         setupPageTransformer();
         setupDotsIndicator();
         setupPageChangeCallback();
         startAutoSlide();
-    }
-
-    private void handleBannerClick(Banner banner, int position) {
-        Intent intent = null;
-
-        switch (position) {
-            case 0: // Banner 1 → Organization Fragment
-                if (getActivity() instanceof DashboardStudentActivity) {
-                    ((DashboardStudentActivity) getActivity()).navigateToOrganization();
-                }
-                break;
-
-            case 1: // Banner 2 → EventActivity
-                intent = new Intent(getActivity(), EventActivity.class);
-                startActivity(intent);
-                break;
-
-            case 2: // Banner 3 → CompetitionActivity
-                intent = new Intent(getActivity(), CompetitionActivity.class);
-                startActivity(intent);
-                break;
-        }
-    }
-
-    private void setupEvents() {
-        loadRecentEvents();
-    }
-
-    private void loadRecentEvents() {
-        EventRepository eventRepository = new EventRepository();
-
-        eventRepository.getRecentEvents(MAX_RECENT_EVENTS).observe(getViewLifecycleOwner(), new Observer<List<Event>>() {
-            @Override
-            public void onChanged(List<Event> events) {
-                eventsContainer.removeAllViews();
-
-                if (events != null && !events.isEmpty()) {
-                    LayoutInflater inflater = LayoutInflater.from(getContext());
-
-                    for (Event event : events) {
-                        View itemView = inflater.inflate(R.layout.item_event, eventsContainer, false);
-
-                        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) itemView.getLayoutParams();
-                        params.leftMargin = 0;
-                        params.rightMargin = 0;
-                        itemView.setLayoutParams(params);
-
-                        bindEventView(itemView, event);
-                        eventsContainer.addView(itemView);
-                    }
-                } else {
-                    TextView emptyText = new TextView(getContext());
-                    emptyText.setText("Tidak ada event terbaru");
-                    emptyText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                    emptyText.setTextColor(0xFF999999);
-                    emptyText.setPadding(16, 32, 16, 32);
-                    eventsContainer.addView(emptyText);
-                }
-            }
-        });
-    }
-
-    private void bindEventView(View itemView, Event event) {
-        ImageView imgPoster = itemView.findViewById(R.id.img_event_poster);
-        TextView txtCategory = itemView.findViewById(R.id.txt_event_category);
-        TextView txtTitle = itemView.findViewById(R.id.txt_event_title);
-        TextView txtLocation = itemView.findViewById(R.id.txt_event_location);
-        TextView txtDate = itemView.findViewById(R.id.txt_event_date);
-        TextView txtParticipants = itemView.findViewById(R.id.txt_event_participants);
-
-        txtTitle.setText(event.getTitle());
-        txtDate.setText(event.getDate());
-        txtLocation.setText(event.getLocation());
-        txtCategory.setText(event.getCategory());
-
-        // Hide participants
-        txtParticipants.setVisibility(View.GONE);
-
-        // Load poster from URL
-        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
-            Glide.with(this)
-                    .load(event.getPosterUrl())
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_home)
-                    .error(R.drawable.ic_home)
-                    .into(imgPoster);
-        } else {
-            imgPoster.setImageResource(R.drawable.ic_home);
-        }
-
-        // Click listener
-        itemView.setOnClickListener(v -> showEventDetailDialog(event));
-    }
-
-    private void showEventDetailDialog(Event event) {
-        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
-        View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_event_detail, null);
-
-        ImageView btnClose = view.findViewById(R.id.btn_close_dialog);
-        TextView txtTitle = view.findViewById(R.id.txt_event_detail_title);
-        TextView txtOrganizer = view.findViewById(R.id.txt_event_detail_organizer);
-        TextView txtLocation = view.findViewById(R.id.txt_event_detail_location);
-        TextView txtDate = view.findViewById(R.id.txt_event_detail_date);
-        TextView txtDescription = view.findViewById(R.id.txt_event_detail_description);
-        View btnDownload = view.findViewById(R.id.btn_download_guidebook);
-
-        LinearLayout layoutTimeSection = view.findViewById(R.id.layout_time_section);
-        TextView txtTime = view.findViewById(R.id.txt_event_detail_time);
-
-        txtTitle.setText(event.getTitle());
-        txtOrganizer.setText(event.getOrganizer());
-        txtLocation.setText(event.getLocation());
-        txtDate.setText(event.getDate());
-        txtDescription.setText(event.getDescription());
-
-        if (event.hasTimeInfo()) {
-            layoutTimeSection.setVisibility(View.VISIBLE);
-            txtTime.setText(event.getWaktuLengkap());
-        } else {
-            layoutTimeSection.setVisibility(View.GONE);
-        }
-
-        // Handle download button
-        if (event.hasGuideBook()) {
-            btnDownload.setVisibility(View.VISIBLE);
-            btnDownload.setOnClickListener(v -> {
-                // Download functionality will be handled in EventActivity
-                Toast.makeText(requireContext(), "Fitur download tersedia di halaman Event", Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            });
-        } else {
-            btnDownload.setVisibility(View.GONE);
-        }
-
-        btnClose.setOnClickListener(v -> dialog.dismiss());
-
-        dialog.setContentView(view);
-        dialog.show();
     }
 
     private void initBannerList() {
@@ -261,15 +139,26 @@ public class HomeFragment extends Fragment {
         bannerList.add(new Banner(R.drawable.ill_banner_slide_3));
     }
 
+    private void handleBannerClick(Banner banner, int position) {
+        switch (position) {
+            case 0:
+                if (getActivity() instanceof DashboardStudentActivity)
+                    ((DashboardStudentActivity) getActivity()).navigateToOrganization();
+                break;
+            case 1:
+                startActivity(new Intent(getActivity(), EventActivity.class));
+                break;
+            case 2:
+                startActivity(new Intent(getActivity(), CompetitionActivity.class));
+                break;
+        }
+    }
+
     private void setupPageTransformer() {
         bannerViewPager.setPageTransformer((page, position) -> {
-            float absPosition = Math.abs(position);
-            if (absPosition >= 1) {
-                page.setAlpha(0f);
-            } else {
-                page.setAlpha(1f - absPosition);
-            }
-            float scale = 1f - (absPosition * 0.05f);
+            float abs = Math.abs(position);
+            page.setAlpha(abs >= 1 ? 0f : 1f - abs);
+            float scale = 1f - (abs * 0.05f);
             page.setScaleX(scale);
             page.setScaleY(scale);
         });
@@ -290,10 +179,9 @@ public class HomeFragment extends Fragment {
 
     private void setCurrentIndicator(int position) {
         for (int i = 0; i < dotsContainer.getChildCount(); i++) {
-            View dot = dotsContainer.getChildAt(i);
-            dot.setBackgroundResource(i == position ?
-                    R.drawable.shape_indicator_active :
-                    R.drawable.shape_indicator_inactive);
+            dotsContainer.getChildAt(i).setBackgroundResource(
+                    i == position ? R.drawable.shape_indicator_active : R.drawable.shape_indicator_inactive
+            );
         }
     }
 
@@ -301,9 +189,8 @@ public class HomeFragment extends Fragment {
         bannerViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                setCurrentIndicator(position);
                 currentPage = position;
+                setCurrentIndicator(position);
             }
         });
     }
@@ -316,56 +203,189 @@ public class HomeFragment extends Fragment {
         sliderHandler.removeCallbacks(autoSlideRunnable);
     }
 
-    private final Runnable autoSlideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (bannerList != null && !bannerList.isEmpty()) {
-                currentPage++;
-                if (currentPage >= bannerList.size()) {
-                    currentPage = 0;
+    // ===================== EVENTS =====================
+    private void setupEvents() {
+        EventRepository repo = new EventRepository();
+        repo.getRecentEvents(MAX_RECENT_EVENTS).observe(getViewLifecycleOwner(), events -> {
+            eventsContainer.removeAllViews();
+            if (events != null && !events.isEmpty()) {
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                for (Event e : events) {
+                    View item = inflater.inflate(R.layout.item_event, eventsContainer, false);
+                    ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) item.getLayoutParams();
+                    params.leftMargin = 0;
+                    params.rightMargin = 0;
+                    item.setLayoutParams(params);
+                    bindEvent(item, e);
+                    eventsContainer.addView(item);
                 }
-                bannerViewPager.setCurrentItem(currentPage, true);
-                sliderHandler.postDelayed(this, AUTO_SLIDE_DELAY);
+            } else {
+                TextView empty = new TextView(getContext());
+                empty.setText("Tidak ada event terbaru");
+                empty.setTextColor(0xFF999999);
+                empty.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                empty.setPadding(16, 32, 16, 32);
+                eventsContainer.addView(empty);
             }
-        }
-    };
+        });
+    }
 
+    private void bindEvent(View item, Event e) {
+        ImageView poster = item.findViewById(R.id.img_event_poster);
+        TextView title = item.findViewById(R.id.txt_event_title);
+        TextView date = item.findViewById(R.id.txt_event_date);
+        TextView loc = item.findViewById(R.id.txt_event_location);
+        TextView cat = item.findViewById(R.id.txt_event_category);
+
+        title.setText(e.getTitle());
+        date.setText(e.getDate());
+        loc.setText(e.getLocation());
+        cat.setText(e.getCategory());
+
+        Glide.with(this)
+                .load(e.getPosterUrl())
+                .centerCrop()
+                .placeholder(R.drawable.ic_home)
+                .error(R.drawable.ic_home)
+                .into(poster);
+
+        item.setOnClickListener(v -> showEventDialog(e));
+    }
+
+    private void showEventDialog(Event e) {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View v = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_event_detail, null);
+
+        ((TextView) v.findViewById(R.id.txt_event_detail_title)).setText(e.getTitle());
+        ((TextView) v.findViewById(R.id.txt_event_detail_organizer)).setText(e.getOrganizer());
+        ((TextView) v.findViewById(R.id.txt_event_detail_location)).setText(e.getLocation());
+        ((TextView) v.findViewById(R.id.txt_event_detail_date)).setText(e.getDate());
+        ((TextView) v.findViewById(R.id.txt_event_detail_description)).setText(e.getDescription());
+        v.findViewById(R.id.btn_close_dialog).setOnClickListener(x -> dialog.dismiss());
+
+        dialog.setContentView(v);
+        dialog.show();
+    }
+
+    // ===================== NOTIFICATION =====================
+    private void checkNotificationBadge() {
+        allNotifications.clear();
+        fetchEvents();
+    }
+
+    private void fetchEvents() {
+        ApiClient.getClient().create(ApiService.class).getAllEvents().enqueue(new Callback<ApiResponseList<Event>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<Event>> call, Response<ApiResponseList<Event>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Event e : response.body().getData()) {
+                        allNotifications.add(new Notification(
+                                e.getId(), e.getTitle(), e.getDescription(), "Event", e.getCreatedAt(), false
+                        ));
+                    }
+                }
+                fetchScholarships();
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<Event>> call, Throwable t) {
+                fetchScholarships();
+            }
+        });
+    }
+
+    private void fetchScholarships() {
+        ApiClient.getClient().create(ApiService.class).getAllScholarships().enqueue(new Callback<ApiResponseList<Scholarship>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<Scholarship>> call, Response<ApiResponseList<Scholarship>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Scholarship s : response.body().getData()) {
+                        allNotifications.add(Notification.fromScholarship(
+                                s.getId(), s.getTitle(), s.getProvider(), s.getDescription(), s.getCreatedAt()
+                        ));
+                    }
+                }
+                fetchCompetitions();
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<Scholarship>> call, Throwable t) {
+                fetchCompetitions();
+            }
+        });
+    }
+
+    private void fetchCompetitions() {
+        ApiClient.getClient().create(ApiService.class).getAllCompetitions().enqueue(new Callback<ApiResponseList<Competition>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<Competition>> call, Response<ApiResponseList<Competition>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Competition c : response.body().getData()) {
+                        allNotifications.add(new Notification(
+                                c.getId(), c.getTitle(), c.getDescription(), "Kompetisi", c.getCreatedAt(), false
+                        ));
+                    }
+                }
+                fetchOprecStatus();
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<Competition>> call, Throwable t) {
+                fetchOprecStatus();
+            }
+        });
+    }
+
+    private void fetchOprecStatus() {
+        SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE);
+        String userId = prefs.getString(Constants.KEY_USER_ID, "");
+        ApiClient.getClient().create(ApiService.class).getOprecStatus(userId).enqueue(new Callback<ApiResponseList<OprecStatus>>() {
+            @Override
+            public void onResponse(Call<ApiResponseList<OprecStatus>> call, Response<ApiResponseList<OprecStatus>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (OprecStatus os : response.body().getData()) {
+                        allNotifications.add(new Notification(
+                                os.getId(), os.getJudul(), "Status: "+os.getStatus(), "Info", os.getCreated_at(), false, os.getStatus()
+                        ));
+                    }
+                }
+                updateBadge();
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseList<OprecStatus>> call, Throwable t) {
+                updateBadge();
+            }
+        });
+    }
+
+    private void updateBadge() {
+        SharedPreferences prefs = requireActivity().getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE);
+        int newCount = allNotifications.size();
+        int lastCount = prefs.getInt(Constants.KEY_LAST_NOTIFICATION_COUNT, 0);
+        badgeNotification.setVisibility(newCount > lastCount ? View.VISIBLE : View.GONE);
+        if (newCount > lastCount) prefs.edit().putInt(Constants.KEY_LAST_NOTIFICATION_COUNT, newCount).apply();
+    }
+
+    // ===================== CLICKS =====================
     private void setupClickListeners(View view) {
-        // Notification Button
-        view.findViewById(R.id.btn_notification).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), NotificationActivity.class);
-            startActivity(intent);
-        });
+        view.findViewById(R.id.btn_notification).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), NotificationActivity.class)));
 
-        // Oprec Button
-        view.findViewById(R.id.btn_oprec).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), OprecActivity.class);
-            startActivity(intent);
-        });
+        view.findViewById(R.id.btn_oprec).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), OprecActivity.class)));
 
-        // Event Button
-        view.findViewById(R.id.btn_event).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), EventActivity.class);
-            startActivity(intent);
-        });
+        view.findViewById(R.id.btn_event).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), EventActivity.class)));
 
-        // Kompetisi Button
-        view.findViewById(R.id.btn_kompetisi).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), CompetitionActivity.class);
-            startActivity(intent);
-        });
+        view.findViewById(R.id.btn_kompetisi).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), CompetitionActivity.class)));
 
-        // Beasiswa Button
-        view.findViewById(R.id.btn_beasiswa).setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), ScholarshipActivity.class);
-            startActivity(intent);
-        });
+        view.findViewById(R.id.btn_beasiswa).setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), ScholarshipActivity.class)));
 
-        // See All Events Button
-        txtSeeAllEvents.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), EventActivity.class);
-            startActivity(intent);
-        });
+        txtSeeAllEvents.setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), EventActivity.class)));
     }
 
     private int dpToPx(int dp) {
@@ -373,17 +393,16 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        stopAutoSlide();
+    public void onResume() {
+        super.onResume();
+        startAutoSlide();
+        checkNotificationBadge();
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (bannerList != null && !bannerList.isEmpty()) {
-            startAutoSlide();
-        }
+    public void onPause() {
+        super.onPause();
+        stopAutoSlide();
     }
 
     @Override

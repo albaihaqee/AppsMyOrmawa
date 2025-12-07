@@ -20,6 +20,7 @@ import com.inovarka.myormawa.models.LoginRequest;
 import com.inovarka.myormawa.models.LoginResponse;
 import com.inovarka.myormawa.models.Meeting;
 import com.inovarka.myormawa.models.Member;
+import com.inovarka.myormawa.models.OprecStatus;
 import com.inovarka.myormawa.models.Organization;
 import com.inovarka.myormawa.models.RegisterRequest;
 import com.inovarka.myormawa.models.ResendOtpRequest;
@@ -159,4 +160,10 @@ public interface ApiService {
             @Part("user_id") RequestBody userId,
             @Part MultipartBody.Part file
     );
+
+    @GET("notification_submission.php")
+    Call<ApiResponseList<OprecStatus>> getOprecStatus(
+            @Query("user_id") String userId
+    );
+
 }
