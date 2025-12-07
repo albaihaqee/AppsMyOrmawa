@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- ===== Permissions ===== -->
     <!-- Internet -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -14,6 +15,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- Storage Permission (Android 13 dan kebawah) -->
+    <!-- Storage (Android 13 kebawah) -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -22,6 +24,7 @@
         android:maxSdkVersion="28" />
 
     <!-- Storage Android 13+ -->
+    <!-- Storage (Android 13+) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <!-- Location -->
@@ -32,6 +35,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Camera features -->
+    <!-- Camera Features -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -39,6 +43,7 @@
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
 
+    <!-- ===== Application ===== -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -50,6 +55,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Myormawa"
         android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <!-- Camera Aux Metadata -->
         <property
@@ -70,6 +77,7 @@
         <activity android:name=".views.dashboard.member.MeetingActivity" android:exported="false" />
 
         <!-- Splash Screen (Launcher) -->
+        <!-- ===== Splash ===== -->
         <activity
             android:name=".views.splash.SplashActivity"
             android:exported="true"
@@ -84,6 +92,12 @@
         <activity android:name=".views.onboarding.OnboardingActivity" android:exported="false" />
 
         <!-- Auth -->
+        <!-- ===== Onboarding ===== -->
+        <activity
+            android:name=".views.onboarding.OnboardingActivity"
+            android:exported="false" />
+
+        <!-- ===== Auth ===== -->
         <activity android:name=".views.auth.RoleSelectionActivity" android:exported="false" />
         <activity android:name=".views.auth.LoginActivity" android:exported="false" />
         <activity android:name=".views.auth.RegisterActivity" android:exported="false" />
@@ -96,6 +110,7 @@
         <activity android:name=".views.auth.ResetPasswordSuccessActivity" android:exported="false" />
 
         <!-- Student Dashboard -->
+        <!-- ===== Student Dashboard ===== -->
         <activity
             android:name=".views.dashboard.student.DashboardStudentActivity"
             android:exported="false"
@@ -109,11 +124,21 @@
         <!-- Student - Change Email -->
         <activity android:name=".views.dashboard.student.ChangeEmailActivity" android:exported="false"
             tools:ignore="LockedOrientationActivity" />
+            tools:ignore="LockedOrientationActivity" />
+
+        <!-- Student - Change Email -->
+        <activity
+            android:name=".views.dashboard.student.ChangeEmailActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
         <activity android:name=".views.dashboard.student.ChangeEmailVerificationActivity" android:exported="false" />
         <activity android:name=".views.dashboard.student.ChangeEmailSuccessActivity" android:exported="false" />
 
         <!-- Student - Change Password -->
         <activity android:name=".views.dashboard.student.ChangePasswordOldActivity" android:exported="false"
+        <activity
+            android:name=".views.dashboard.student.ChangePasswordOldActivity"
+            android:exported="false"
             tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".views.dashboard.student.ChangePasswordNewActivity"
@@ -137,11 +162,44 @@
         <!-- Member - Change Email -->
         <activity android:name=".views.dashboard.member.ChangeEmailMemberActivity" android:exported="false"
             tools:ignore="LockedOrientationActivity" />
+            tools:ignore="LockedOrientationActivity" />
+
+        <!-- Student Features -->
+        <activity android:name=".views.dashboard.student.OprecActivity" android:exported="false" />
+        <activity android:name=".views.dashboard.student.EventActivity" android:exported="false" />
+        <activity android:name=".views.dashboard.student.CompetitionActivity" android:exported="false" />
+        <activity android:name=".views.dashboard.student.ScholarshipActivity" android:exported="false" />
+        <activity android:name=".views.dashboard.student.FormFillActivity" android:exported="false" />
+
+        <!-- ===== Member Dashboard ===== -->
+        <activity
+            android:name=".views.dashboard.member.DashboardMemberActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
+        <activity android:name=".views.dashboard.member.DataPribadiMemberActivity" android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.ScanActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
+        <activity android:name=".views.dashboard.member.MemberActivity" android:exported="false" />
+        <activity android:name=".views.dashboard.member.MeetingActivity" android:exported="false" />
+        <activity android:name=".views.dashboard.member.NotificationMemberActivity" android:exported="false" />
+        <activity android:name=".views.dashboard.member.PresenceHistoryActivity" android:exported="false" />
+        <activity android:name=".views.dashboard.member.DocumentActivity" android:exported="false" />
+
+        <!-- Member - Change Email -->
+        <activity
+            android:name=".views.dashboard.member.ChangeEmailMemberActivity"
+            android:exported="false"
+            tools:ignore="LockedOrientationActivity" />
         <activity android:name=".views.dashboard.member.ChangeEmailVerificationMemberActivity" android:exported="false" />
         <activity android:name=".views.dashboard.member.ChangeEmailSuccessMemberActivity" android:exported="false" />
 
         <!-- Member - Change Password -->
         <activity android:name=".views.dashboard.member.ChangePasswordOldMemberActivity" android:exported="false"
+        <activity
+            android:name=".views.dashboard.member.ChangePasswordOldMemberActivity"
+            android:exported="false"
             tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".views.dashboard.member.ChangePasswordNewMemberActivity"
@@ -150,6 +208,7 @@
             tools:ignore="LockedOrientationActivity" />
 
         <!-- Fonts -->
+        <!-- Preloaded Fonts -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

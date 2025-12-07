@@ -8,6 +8,8 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +29,11 @@ import retrofit2.Response;
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputLayout tilNim, tilFullname, tilEmail, tilProdi, tilPassword;
-    private TextInputEditText edtNim, edtFullname, edtEmail, edtProdi, edtPassword;
+    private TextInputEditText edtNim, edtFullname, edtEmail, edtPassword;
+    private AutoCompleteTextView actvProdi; // Changed from TextInputEditText to AutoCompleteTextView
+
+    // Variable untuk menyimpan program studi yang dipilih
+    private String selectedProgramStudi = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
         setWhiteStatusBar();
         setContentView(R.layout.activity_register);
         initViews();
+        setupProgramStudiDropdown(); // Setup dropdown setelah initViews
     }
 
     private void setWhiteStatusBar() {
@@ -53,19 +60,65 @@ public class RegisterActivity extends AppCompatActivity {
         edtNim = findViewById(R.id.edt_nim);
         edtFullname = findViewById(R.id.edt_fullname);
         edtEmail = findViewById(R.id.edt_email);
-        edtProdi = findViewById(R.id.edt_prodi);
+        actvProdi = findViewById(R.id.actv_prodi); // Changed to AutoCompleteTextView
         edtPassword = findViewById(R.id.edt_password);
 
         edtNim.addTextChangedListener(createErrorClearer(tilNim));
         edtFullname.addTextChangedListener(createErrorClearer(tilFullname));
         edtEmail.addTextChangedListener(createErrorClearer(tilEmail));
-        edtProdi.addTextChangedListener(createErrorClearer(tilProdi));
         edtPassword.addTextChangedListener(createErrorClearer(tilPassword));
 
         findViewById(R.id.btn_register).setOnClickListener(v -> handleRegister());
         findViewById(R.id.txt_login).setOnClickListener(v -> {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
+        });
+    }
+
+    // NEW METHOD: Setup Program Studi Dropdown
+    private void setupProgramStudiDropdown() {
+        // Get array dari strings.xml
+        String[] programStudiArray = getResources().getStringArray(R.array.program_studi_array);
+
+        // Create ArrayAdapter with custom dropdown item layout
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                programStudiArray
+        );
+
+        // Set adapter ke AutoCompleteTextView
+        actvProdi.setAdapter(adapter);
+
+        // IMPORTANT: Force dropdown to show below the field
+        actvProdi.setDropDownHeight(800); // Set max height (adjust as needed)
+        actvProdi.setDropDownVerticalOffset(0); // Offset 0 = tepat di bawah field
+
+        // Handle item selection
+        actvProdi.setOnItemClickListener((parent, view, position, id) -> {
+            selectedProgramStudi = parent.getItemAtPosition(position).toString();
+
+            // Skip jika yang dipilih adalah placeholder "Pilih Program Studi"
+            if (position == 0) {
+                selectedProgramStudi = "";
+            }
+
+            // Clear error ketika user memilih
+            tilProdi.setError(null);
+        });
+
+        // Add TextWatcher untuk clear error ketika user mulai mengetik (opsional)
+        actvProdi.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilProdi.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -90,7 +143,7 @@ public class RegisterActivity extends AppCompatActivity {
         String nim = edtNim.getText().toString().trim();
         String fullname = edtFullname.getText().toString().trim();
         String email = edtEmail.getText().toString().trim();
-        String prodi = edtProdi.getText().toString().trim();
+        String prodi = selectedProgramStudi; // Changed: gunakan selectedProgramStudi dari dropdown
         String password = edtPassword.getText().toString().trim();
 
         // Disable button saat loading
@@ -143,7 +196,7 @@ public class RegisterActivity extends AppCompatActivity {
         String nim = edtNim.getText().toString().trim();
         String fullname = edtFullname.getText().toString().trim();
         String email = edtEmail.getText().toString().trim();
-        String prodi = edtProdi.getText().toString().trim();
+        String prodi = selectedProgramStudi; // Changed: gunakan selectedProgramStudi
         String password = edtPassword.getText().toString().trim();
 
         if (nim.isEmpty()) {
@@ -182,9 +235,17 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
         }
 
+        // Changed: Validasi untuk dropdown
         if (prodi.isEmpty()) {
             tilProdi.setError("Program study is required");
-            edtProdi.requestFocus();
+            actvProdi.requestFocus();
+            return false;
+        }
+
+        // Validasi tambahan untuk memastikan bukan placeholder
+        if (prodi.equals("Pilih Program Studi")) {
+            tilProdi.setError("Please select a valid program study");
+            actvProdi.requestFocus();
             return false;
         }
 

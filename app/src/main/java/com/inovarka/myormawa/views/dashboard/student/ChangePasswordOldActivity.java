@@ -103,14 +103,61 @@ public class ChangePasswordOldActivity extends AppCompatActivity {
             return;
         }
 
-        // Lanjut ke ChangePasswordNewActivity
-        Intent intent = new Intent(ChangePasswordOldActivity.this, ChangePasswordNewActivity.class);
-        intent.putExtra("old_password", oldPassword); // Pass old password
-        startActivity(intent);
-        finish();
+        // Cek apakah sudah mencapai maksimal percobaan
+        if (attemptCount >= MAX_ATTEMPTS) {
+            Toast.makeText(this, "Terlalu banyak percobaan gagal. Silakan coba lagi nanti.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        // Disable button saat loading
+        btnContinue.setEnabled(false);
+
+        // Verifikasi password lama dengan API login
+        LoginRequest request = new LoginRequest("login", userEmail, oldPassword);
+
+        ApiClient.getApiService().login(request).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                btnContinue.setEnabled(true);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    LoginResponse loginResponse = response.body();
+
+                    if (loginResponse.isSuccess()) {
+                        // Password benar, lanjut ke ChangePasswordNewActivity
+                        Intent intent = new Intent(ChangePasswordOldActivity.this, ChangePasswordNewActivity.class);
+                        intent.putExtra("old_password", oldPassword);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        // Password salah
+                        attemptCount++;
+                        int remainingAttempts = MAX_ATTEMPTS - attemptCount;
+
+                        if (remainingAttempts > 0) {
+                            tilPassword.setError("Password salah. Sisa percobaan: " + remainingAttempts);
+                        } else {
+                            Toast.makeText(ChangePasswordOldActivity.this,
+                                    "Terlalu banyak percobaan gagal. Silakan coba lagi nanti.", Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                    }
+                } else {
+                    Toast.makeText(ChangePasswordOldActivity.this,
+                            "Gagal memverifikasi password. Silakan coba lagi.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                btnContinue.setEnabled(true);
+                Toast.makeText(ChangePasswordOldActivity.this,
+                        "Connection error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e("VerifyPassword", "Error: " + t.getMessage(), t);
+            }
+        });
     }
-
-
 
     private void setButtonState(boolean enabled) {
         btnContinue.setEnabled(enabled);
