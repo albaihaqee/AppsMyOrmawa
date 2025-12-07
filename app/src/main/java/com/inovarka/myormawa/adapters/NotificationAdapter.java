@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.models.Notification;
+import com.inovarka.myormawa.utils.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +74,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             txtTitle.setText(notification.getTitle());
             txtMessage.setText(notification.getMessage());
             txtTime.setText(notification.getTime());
+
 
             // Show/hide read indicator
             readIndicator.setVisibility(notification.isRead() ? View.INVISIBLE : View.VISIBLE);

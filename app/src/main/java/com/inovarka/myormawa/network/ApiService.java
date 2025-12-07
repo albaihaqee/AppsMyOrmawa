@@ -116,8 +116,6 @@ public interface ApiService {
     @GET("documents.php")
     Call<ApiResponseList<Document>> getDocumentsByOrmawa(@Query("id_ormawa") String idOrmawa);
 
-    Call<ApiResponseSingle<Event>> getEventById(@Query("id") String id);
-
     // COMPETITION ENDPOINTS
     @GET("competition.php")
     Call<ApiResponseList<Competition>> getAllCompetitions();

@@ -29,6 +29,12 @@ public class Scholarship {
 
     @SerializedName("guideBookFilename")
     private String guideBookFilename;
+    @SerializedName("created_at")
+    private String createdAt;
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
 
     // Constructor kosong
     public Scholarship() {}
