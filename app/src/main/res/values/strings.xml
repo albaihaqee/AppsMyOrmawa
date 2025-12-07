@@ -3,4 +3,16 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tidak_ada_kegiatan">Tidak ada kegiatan hari ini</string>
+
+    <!-- Program Studi Array -->
+    <string-array name="program_studi_array">
+        <item>Teknik Informatika</item>
+        <item>Teknik Komputer</item>
+        <item>Sistem Informasi</item>
+        <item>Teknik Elektro</item>
+        <item>Teknik Mesin</item>
+        <item>Teknik Sipil</item>
+        <item>Akuntansi</item>
+        <item>Manajemen</item>
+    </string-array>
 </resources>

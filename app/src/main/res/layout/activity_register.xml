@@ -186,6 +186,7 @@
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- REVISED: Program Studi - Changed to Dropdown/ComboBox -->
     <TextView
         android:id="@+id/txt_prodi"
         android:layout_width="350dp"
@@ -202,10 +203,10 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_prodi"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:hint="Enter your program study"
+        android:hint="Select your program study"
         app:boxBackgroundColor="#F8F8F8"
         app:boxCornerRadiusBottomEnd="10dp"
         app:boxCornerRadiusBottomStart="10dp"
@@ -217,18 +218,19 @@
         app:hintTextColor="@color/text_input_hint"
         app:startIconDrawable="@drawable/ic_graduation_filled"
         app:startIconTint="@color/text_input_icon"
+        app:endIconTint="@color/text_input_icon"
         app:errorEnabled="true"
         app:errorTextColor="#FF0000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_prodi">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edt_prodi"
+        <AutoCompleteTextView
+            android:id="@+id/actv_prodi"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:fontFamily="@font/poppins_regular"
-            android:inputType="text"
+            android:inputType="none"
             android:paddingStart="20dp"
             android:paddingTop="10dp"
             android:paddingEnd="10dp"
