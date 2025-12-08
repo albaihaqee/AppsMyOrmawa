@@ -24,7 +24,6 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.inovarka.myormawa.R;
 import com.inovarka.myormawa.utils.Constants;
-import com.inovarka.myormawa.views.auth.LoginActivity;
 import com.inovarka.myormawa.views.auth.RoleSelectionActivity;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -34,7 +33,7 @@ public class ProfileFragment extends Fragment {
     private static final String PREFS_NAME = "MyOrmawaPrefs";
 
     private TextView txtAvatar, txtUserName, txtUserNim, txtUserProdi, txtUserAngkatan;
-    private CardView cardDataPribadi, cardGantiPassword, cardLogout;
+    private CardView cardDataPribadi, cardGantiPassword, cardRiwayatOprec, cardLogout;
 
     @Nullable
     @Override
@@ -69,6 +68,7 @@ public class ProfileFragment extends Fragment {
         txtUserAngkatan = view.findViewById(R.id.txt_user_angkatan);
         cardDataPribadi = view.findViewById(R.id.card_data_pribadi);
         cardGantiPassword = view.findViewById(R.id.card_ganti_password);
+        cardRiwayatOprec = view.findViewById(R.id.card_riwayat_oprec);  // NEW
         cardLogout = view.findViewById(R.id.card_logout);
     }
 
@@ -103,6 +103,9 @@ public class ProfileFragment extends Fragment {
         cardGantiPassword.setOnClickListener(v ->
                 startActivity(new Intent(getActivity(), ChangePasswordOldActivity.class)));
 
+        cardRiwayatOprec.setOnClickListener(v ->
+                startActivity(new Intent(getActivity(), HistoryOprecActivity.class)));
+
         cardLogout.setOnClickListener(v -> showLogoutDialog());
     }
 
@@ -131,16 +134,13 @@ public class ProfileFragment extends Fragment {
     }
 
     private void performLogout() {
-        // Reset shared preferences
         SharedPreferences.Editor editor = requireActivity().getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE).edit();
         editor.putBoolean(Constants.KEY_IS_LOGGED_IN, false);
         editor.apply();
 
-        // Intent ke RoleSelectionActivity
         Intent intent = new Intent(getActivity(), RoleSelectionActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         requireActivity().finish();
     }
-
 }

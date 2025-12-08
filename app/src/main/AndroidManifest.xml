@@ -2,50 +2,57 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- ===== Permissions ===== -->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- Storage (Android 13 and below) -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
-
-    <!-- Storage (Android 13+) -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
-    <!-- Location -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
-    <!-- Misc -->
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Features -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
 
-    <!-- Camera Features -->
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
-
-    <!-- ===== Application ===== -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_logo_circle"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@drawable/ic_logo_circle"
         android:supportsRtl="true"
         android:theme="@style/Theme.Myormawa"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config">
+        android:usesCleartextTraffic="true">
 
-        <!-- Camera Aux Metadata -->
+        <!-- Meta Data -->
         <meta-data
             android:name="vendor.camera.aux.packagelist"
             android:value="${applicationId}" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
-        <!-- ===== Splash (Launcher) ===== -->
+        <!-- Broadcast Receiver -->
+        <receiver
+            android:name=".models.ReminderReceiver"
+            android:exported="false" />
+
+        <!-- Splash Screen -->
         <activity
             android:name=".views.splash.SplashActivity"
             android:exported="true"
@@ -56,78 +63,136 @@
             </intent-filter>
         </activity>
 
-        <!-- ===== Onboarding ===== -->
-        <activity android:name=".views.onboarding.OnboardingActivity" android:exported="false" />
+        <!-- Onboarding -->
+        <activity
+            android:name=".views.onboarding.OnboardingActivity"
+            android:exported="false" />
 
-        <!-- ===== Auth ===== -->
-        <activity android:name=".views.auth.RoleSelectionActivity" android:exported="false" />
-        <activity android:name=".views.auth.LoginActivity" android:exported="false" />
-        <activity android:name=".views.auth.RegisterActivity" android:exported="false" />
-        <activity android:name=".views.auth.RegisterVerificationActivity" android:exported="false" />
-        <activity android:name=".views.auth.RegisterSuccessActivity" android:exported="false" />
-        <activity android:name=".views.auth.ForgotPasswordActivity" android:exported="false" />
-        <activity android:name=".views.auth.ForgotPasswordVerificationActivity" android:exported="false" />
-        <activity android:name=".views.auth.ResetPasswordActivity" android:exported="false" />
-        <activity android:name=".views.auth.SetNewPasswordActivity" android:exported="false" />
-        <activity android:name=".views.auth.ResetPasswordSuccessActivity" android:exported="false" />
+        <!-- Authentication -->
+        <activity
+            android:name=".views.auth.RoleSelectionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.RegisterVerificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.RegisterSuccessActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.ForgotPasswordVerificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.ResetPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.SetNewPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.auth.ResetPasswordSuccessActivity"
+            android:exported="false" />
 
-        <!-- ===== Student Dashboard ===== -->
+        <!-- Student Dashboard -->
         <activity
             android:name=".views.dashboard.student.DashboardStudentActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".views.dashboard.student.NotificationActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.student.DataPribadiActivity" android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.DataPribadiActivity"
+            android:exported="false" />
 
         <!-- Student Settings -->
-        <activity android:name=".views.dashboard.student.ChangeEmailActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.student.ChangeEmailVerificationActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.student.ChangeEmailSuccessActivity" android:exported="false" />
-
-        <activity android:name=".views.dashboard.student.ChangePasswordOldActivity" android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.ChangeEmailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.ChangeEmailVerificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.ChangeEmailSuccessActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.ChangePasswordOldActivity"
+            android:exported="false" />
         <activity
             android:name=".views.dashboard.student.ChangePasswordNewActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
 
         <!-- Student Features -->
-        <activity android:name=".views.dashboard.student.OprecActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.student.EventActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.student.CompetitionActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.student.ScholarshipActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.student.FormFillActivity" android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.OprecActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.EventActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.CompetitionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.ScholarshipActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.FormFillActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.student.HistoryOprecActivity"
+            android:exported="false" />
 
-        <!-- ===== Member Dashboard ===== -->
+        <!-- Member Dashboard -->
         <activity
             android:name=".views.dashboard.member.DashboardMemberActivity"
             android:exported="false" />
-        <activity android:name=".views.dashboard.member.DataPribadiMemberActivity" android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.DataPribadiMemberActivity"
+            android:exported="false" />
         <activity
             android:name=".views.dashboard.member.ScanActivity"
             android:exported="false" />
-        <activity android:name=".views.dashboard.member.MemberActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.member.MeetingActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.member.NotificationMemberActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.member.PresenceHistoryActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.member.DocumentActivity" android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.MemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.MeetingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.NotificationMemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.PresenceHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.DocumentActivity"
+            android:exported="false" />
 
-        <!-- Member Email -->
-        <activity android:name=".views.dashboard.member.ChangeEmailMemberActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.member.ChangeEmailVerificationMemberActivity" android:exported="false" />
-        <activity android:name=".views.dashboard.member.ChangeEmailSuccessMemberActivity" android:exported="false" />
-
-        <!-- Member Password -->
-        <activity android:name=".views.dashboard.member.ChangePasswordOldMemberActivity" android:exported="false" />
+        <!-- Member Settings -->
+        <activity
+            android:name=".views.dashboard.member.ChangeEmailMemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.ChangeEmailVerificationMemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.ChangeEmailSuccessMemberActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.dashboard.member.ChangePasswordOldMemberActivity"
+            android:exported="false" />
         <activity
             android:name=".views.dashboard.member.ChangePasswordNewMemberActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
-
-        <!-- Fonts -->
-        <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts" />
-
-        <!-- Reminder Receiver -->
-        <receiver android:name=".models.ReminderReceiver" android:exported="false" />
 
     </application>
 
