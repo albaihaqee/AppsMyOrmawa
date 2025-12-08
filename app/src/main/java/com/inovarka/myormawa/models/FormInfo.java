@@ -37,6 +37,9 @@ public class FormInfo {
     @SerializedName("created_at")
     private String createdAt;
 
+    @SerializedName("submitted_at")
+    private String submittedAt;
+
     @SerializedName("fields")
     private List<FormField> fields;
 
@@ -75,6 +78,9 @@ public class FormInfo {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public String getSubmittedAt() { return submittedAt; }
+    public void setSubmittedAt(String submittedAt) { this.submittedAt = submittedAt; }
 
     public List<FormField> getFields() { return fields; }
     public void setFields(List<FormField> fields) { this.fields = fields; }

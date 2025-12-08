@@ -40,7 +40,7 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
-    // AUTH ENDPOINTS
+    // Authentication
     @POST("auth.php")
     Call<ApiResponse> register(@Body RegisterRequest request);
 
@@ -65,16 +65,14 @@ public interface ApiService {
     @POST("auth.php")
     Call<ApiResponse> changePassword(@Body ChangePasswordRequest request);
 
-
-    // ORMAWA ENDPOINTS
+    // Organization
     @GET("ormawa.php")
     Call<ApiResponseList<Organization>> getAllOrganizations();
 
     @GET("ormawa.php")
     Call<ApiResponseSingle<Organization>> getOrganizationById(@Query("id") String id);
 
-
-    // ATTENDANCE ENDPOINTS
+    // Attendance
     @POST("attendance.php")
     Call<ApiResponseSingle<AttendanceData>> verifyQRCode(@Body AttendanceRequest request);
 
@@ -87,8 +85,7 @@ public interface ApiService {
             @Query("user_id") String userId
     );
 
-
-    // EVENT ENDPOINTS
+    // Event
     @GET("event.php")
     Call<ApiResponseList<Event>> getAllEvents();
 
@@ -101,42 +98,37 @@ public interface ApiService {
     @GET("event.php")
     Call<ApiResponseSingle<EventMember>> getEventDetail(@Query("id") String id);
 
-
-    // MEETING / KEGIATAN ENDPOINTS
+    // Meeting
     @GET("kegiatan.php")
     Call<ApiResponseList<Meeting>> getKegiatanByOrmawa(@Query("id_ormawa") String ormawaId);
 
-
-    // MEMBER ENDPOINTS
+    // Member
     @GET("member.php")
     Call<ApiResponseList<Member>> getMembersByOrmawa(@Query("id_ormawa") String idOrmawa);
 
+    // Document
     @GET("documents.php")
     Call<ApiResponseList<Document>> getDocumentsByOrmawa(@Query("id_ormawa") String idOrmawa);
 
-
-    // COMPETITION ENDPOINTS
+    // Competition
     @GET("competition.php")
     Call<ApiResponseList<Competition>> getAllCompetitions();
 
     @GET("competition.php")
     Call<ApiResponseSingle<Competition>> getCompetitionById(@Query("id") String id);
 
-
-    // SCHOLARSHIP ENDPOINTS
+    // Scholarship
     @GET("scholarship.php")
     Call<ApiResponseList<Scholarship>> getAllScholarships();
 
     @GET("scholarship.php")
     Call<ApiResponseSingle<Scholarship>> getScholarshipById(@Query("id") String id);
 
-
-    // CALENDAR ENDPOINTS
+    // Calendar
     @GET("calendar.php")
     Call<ApiResponseList<CalendarEvent>> getCalendarEvents();
 
-
-    // FORM BUILDER ENDPOINTS
+    // Form Builder
     @GET("form_builder_api.php?action=get_forms")
     Call<ApiResponseList<FormInfo>> getFormsByType(@Query("jenis_form") String jenisForm);
 
@@ -161,9 +153,7 @@ public interface ApiService {
             @Part MultipartBody.Part file
     );
 
+    // Notification
     @GET("notification_submission.php")
-    Call<ApiResponseList<OprecStatus>> getOprecStatus(
-            @Query("user_id") String userId
-    );
-
+    Call<ApiResponseList<OprecStatus>> getOprecStatus(@Query("user_id") String userId);
 }
